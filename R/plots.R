@@ -229,8 +229,10 @@ plot_score_heatmap <- function(scores_long, value = "Combined_Score") {
 #' Gene x cancer correlation heatmap (immune or metabolic)
 #'
 #' @param d long data.frame with columns Cancer, Trait, Cor
-#' @param title plot title
-#' @param low/high heatmap gradient colors
+#' @param title plot title (图标题)
+#' @param low low-end gradient color (低值渐变颜色)
+#' @param high high-end gradient color (高值渐变颜色)
+#' @param p_col column name of the p value used for significance stars (P 值列名)
 #' @return a ggplot object
 #' @export
 plot_cor_heatmap <- function(d, title = "Correlation heatmap",

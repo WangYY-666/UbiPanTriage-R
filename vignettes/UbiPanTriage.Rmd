@@ -34,9 +34,11 @@ message("Run UbiPanTriage::download_extdata() once to install the pan-cancer dat
 ```
 
 ```{r, eval = data_ok}
-library(UbiPanTriage)
-available_cancers()          # 查看可用癌种
-luad <- load_cancer_data("LUAD")
+if (data_ok) {
+  library(UbiPanTriage)
+  available_cancers()          # 查看可用癌种
+  luad <- load_cancer_data("LUAD")
+}
 ```
 
 
@@ -44,50 +46,58 @@ luad <- load_cancer_data("LUAD")
 # 单癌种评分 Single-cancer scoring
 
 ```{r}
-res <- score_genes(luad, c("MDM2", "TRIM44", "UBE2C", "FBXW7"))
-head(res$scores[, c("Gene", "Ubi_Score", "Basic_Score", "Immune_Score",
-                    "Metabolic_Score", "Combined_Score", "Combined_Rank")])
+if (data_ok) {
+  res <- score_genes(luad, c("MDM2", "TRIM44", "UBE2C", "FBXW7"))
+  head(res$scores[, c("Gene", "Ubi_Score", "Basic_Score", "Immune_Score",
+                      "Metabolic_Score", "Combined_Score", "Combined_Rank")])
+}
 ```
 
 # 修改权重 Adjusting weights
 
 ```{r}
-bp <- default_basic_params()
-bp$weights <- c(expression = 1, diff = 1, survive = 2, roc = 1)  # 加重生存权重
-ip <- default_immune_params()
-ip$method <- "cibersort"                                          # 切换免疫方法
-cp <- default_combine_params()
-cp$method <- "weighted"                                           # 加权平均
-res2 <- score_genes(luad, c("MDM2", "TRIM44"), basic_params = bp,
-                    immune_params = ip, combine_params = cp)
+if (data_ok) {
+  bp <- default_basic_params()
+  bp$weights <- c(expression = 1, diff = 1, survive = 2, roc = 1)  # 加重生存权重
+  ip <- default_immune_params()
+  ip$method <- "cibersort"                                          # 切换免疫方法
+  cp <- default_combine_params()
+  cp$method <- "weighted"                                           # 加权平均
+  res2 <- score_genes(luad, c("MDM2", "TRIM44"), basic_params = bp,
+                      immune_params = ip, combine_params = cp)
+}
 ```
 
 # 可视化 Visualization
 
 ```{r, fig.width = 6, fig.height = 5}
-plot_radar(c(Basic = 0.8, Immune = 0.5, Metabolic = 0.6), gene = "MDM2")
-plot_immune_cor(luad, "MDM2", method = "timer")
-plot_metabolic_cor(luad, "MDM2")
-plot_expr_box(luad, "MDM2")
-plot_roc_diag(luad, "MDM2")
+if (data_ok) {
+  plot_radar(c(Basic = 0.8, Immune = 0.5, Metabolic = 0.6), gene = "MDM2")
+  plot_immune_cor(luad, "MDM2", method = "timer")
+  plot_metabolic_cor(luad, "MDM2")
+  plot_expr_box(luad, "MDM2")
+  plot_roc_diag(luad, "MDM2")
+}
 ```
 
 # 交互界面 Shiny app
 
 ```r
-run_shiny_app()
+if (interactive() && data_ok) run_shiny_app()
 ```
 
 # 自定义基因集 Custom gene sets
 
 ```r
-# 读取用户基因（含可选特征分列）
-df <- read.csv("my_genes.csv")   # 第一列: 基因符号; 第二列(可选): 0-1 特征分
-genes <- as.character(df[[1]])
-feat  <- stats::setNames(as.numeric(df[[2]]), genes)
-cp <- default_combine_params()
-cp$include_feature <- TRUE
-cp$feature_scores <- feat
-res_custom <- score_genes(luad, genes, combine_params = cp)
+if (data_ok) {
+  # 读取用户基因（含可选特征分列）
+  df <- read.csv("my_genes.csv")   # 第一列: 基因符号; 第二列(可选): 0-1 特征分
+  genes <- as.character(df[[1]])
+  feat  <- stats::setNames(as.numeric(df[[2]]), genes)
+  cp <- default_combine_params()
+  cp$include_feature <- TRUE
+  cp$feature_scores <- feat
+  res_custom <- score_genes(luad, genes, combine_params = cp)
+}
 ```
 

@@ -20,6 +20,8 @@ plot_ranking_bar(
 \item{gene_col}{gene column (基因列)}
 
 \item{top_n}{number of genes to show (显示基因数)}
+
+\item{label}{label text for the score axis and title (评分轴/标题标签)}
 }
 \value{
 a ggplot object

@@ -6,6 +6,12 @@
 \usage{
 default_immune_weights(method = "timer")
 }
+\arguments{
+\item{method}{immune method: timer / cibersort / mcp / ssgsea / xcell}
+}
+\value{
+NULL; a NULL weight vector means equal weighting within the method
+}
 \description{
 Default immune weights per method (各免疫方法的默认权重)
 }

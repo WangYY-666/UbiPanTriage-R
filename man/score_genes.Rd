@@ -38,7 +38,9 @@ dimensions that are available (e.g. ubiquitin is excluded for custom genes,
 basic sub-items are re-weighted when a cancer lacks diff/normal tissue).
 }
 \examples{
+\donttest{
 luad <- load_cancer_data("LUAD")
 r <- score_genes(luad, c("MDM2", "TRIM44", "UBE2C"))
 print(r$scores[, c("Gene", "Ubi_Score", "Basic_Score", "Immune_Score", "Metabolic_Score")])
+}
 }

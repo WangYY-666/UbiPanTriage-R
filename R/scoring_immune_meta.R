@@ -1,10 +1,13 @@
 # ============================================================================
 # scoring_immune_meta.R - immune & metabolic dimension scoring
-# 閸忓秶鏌呮稉搴濆敩鐠嬨垻娣惔锕佺槑閸掑棴绱欓崺鍝勬礈鐞涖劏鎻稉搴″帳閻ゎ偅韫堝☉?娴狅綀闃块柅鏂跨窞閻ㄥ嫬濮為弶鍐祲閸忚櫕鈧嶇礆
+# Immune & metabolic dimension scoring (免疫与代谢维度评分)
 # ============================================================================
 
 #' Tumor samples (patient-deduplicated) shared by expression and trait tables
-#' 閸欐牞銆冩潏鍙ョ瑢閻楃懓绶涚悰銊ュ彙閺堝娈戦懖璺ㄦЙ閺嶉攱婀伴敍鍫熷瘻閹綀鈧懎骞撻柌宥忕礉娑撳酣顣╃拋锛勭暬娑撯偓閼疯揪绱?#' @noRd
+#' 取表达矩阵与特征矩阵共有的肿瘤样本（同一患者去重），样本量不足时返回 NULL。
+#' @param cache cancer cache (癌种缓存)
+#' @param trait_df trait data.frame with an ID column (含 ID 列的特征表)
+#' @noRd
 .tumor_common <- function(cache, trait_df) {
   si <- cache$sample_info
   tum <- si$sample[si$type == "Tumor"]
@@ -21,9 +24,14 @@
   list(x = x, y = y)
 }
 
-#' Gene-trait spearman correlation matrix (閸╁搫娲?閻楃懓绶?Spearman 閻╃鍙ч惌鈺呮█)
+#' Gene-trait spearman correlation matrix (基因-特征 Spearman 相关矩阵)
 #' Uses pre-computed values for background genes and computes on the fly
-#' for user-supplied genes. 閼冲本娅欓崺鍝勬礈閻劑顣╃拋锛勭暬閸婄》绱濋悽銊﹀煕閸╁搫娲滈崡铏鐠侊紕鐣婚妴?#' @noRd
+#' for user-supplied genes. 背景基因直接读取预计算矩阵，新基因即时计算。
+#' @param cache cancer cache (癌种缓存)
+#' @param genes gene symbols (基因符号)
+#' @param trait_df trait data.frame with an ID column (含 ID 列的特征表)
+#' @param pre_mat pre-computed correlation matrix (预计算相关矩阵)
+#' @noRd
 .gene_trait_cor <- function(cache, genes, trait_df, pre_mat) {
   genes <- unique(as.character(genes))
   if (is.null(pre_mat) && is.null(trait_df)) return(NULL)
@@ -62,11 +70,11 @@
   out[genes, , drop = FALSE]
 }
 
-#' Immune infiltration correlation (閸忓秶鏌呭ù鍛婇紟閻╃鍙ч幀褏鐓╅梼?
-#' @param cache cancer cache (閻у瞼顫掔紓鎾崇摠)
-#' @param genes gene symbols (閸╁搫娲滅粭锕€褰?
+#' Immune infiltration correlation (免疫浸润相关矩阵)
+#' @param cache cancer cache (癌种缓存)
+#' @param genes gene symbols (基因符号)
 #' @param method immune method: timer / cibersort / mcp / ssgsea / xcell
-#' @return matrix genes x immune traits (閸╁搫娲?x 閸忓秶鏌呯紒鍡氬劒閻╃鍙ч惌鈺呮█)
+#' @return matrix genes x immune traits (基因 x 免疫特征的相关系数矩阵)
 #' @export
 immune_cor <- function(cache, genes, method = "timer") {
   trait_df <- cache$immune[[method]]
@@ -74,27 +82,27 @@ immune_cor <- function(cache, genes, method = "timer") {
   .gene_trait_cor(cache, genes, trait_df, pre_mat)
 }
 
-#' Metabolic pathway correlation (娴狅綀闃块柅鏂跨窞閻╃鍙ч幀褏鐓╅梼?
-#' @param cache cancer cache (閻у瞼顫掔紓鎾崇摠)
-#' @param genes gene symbols (閸╁搫娲滅粭锕€褰?
-#' @return matrix genes x pathways (閸╁搫娲?x 娴狅綀闃块柅鏂跨窞閻╃鍙ч惌鈺呮█)
+#' Metabolic pathway correlation (代谢途径相关矩阵)
+#' @param cache cancer cache (癌种缓存)
+#' @param genes gene symbols (基因符号)
+#' @return matrix genes x pathways (基因 x 代谢途径的相关系数矩阵)
 #' @export
 metabolic_cor <- function(cache, genes) {
   .gene_trait_cor(cache, genes, cache$metabolism, cache$pre$cor_meta)
 }
 
-#' Immune dimension score (閸忓秶鏌呯紒鏉戝鐠囧嫬鍨?
+#' Immune dimension score (免疫维度评分)
 #'
 #' Weighted mean of |spearman r| between the gene and immune infiltration
 #' traits; default weights follow the LUAD example (CD8/Macrophage/DC
 #' emphasized). Top trait and signed correlation are also reported.
-#' 閸╁搫娲滄稉搴″帳閻ゎ偅韫堝☉锔惧瀵颁胶娈戦崝鐘虫綀 |閻╃鍙х化缁樻殶| 閸у洤鈧》绱辨妯款吇閺夊啴鍣搁崥?LUAD 缁€杞扮伐閵?#'
-#' @param cache cancer cache (閻у瞼顫掔紓鎾崇摠)
-#' @param genes gene symbols (閸╁搫娲滅粭锕€褰?
-#' @param method immune method (閸忓秶鏌呭ù鍛婇紟閺傝纭?
-#' @param weights named weights per trait (閸氬嫬鍘ら悿顐ょ矎閼崇偞娼堥柌宥忕幢NULL 娴ｈ法鏁ゆ妯款吇)
+#' 免疫分 = 基因与免疫浸润特征加权 |Spearman r| 的加权均值；权重默认按 LUAD 示例侧重 CD8 / Macrophage / DC，并报告主要相关细胞与相关方向。
+#' @param cache cancer cache (癌种缓存)
+#' @param genes gene symbols (基因符号)
+#' @param method immune method (免疫浸润方法)
+#' @param weights named weights per trait (各特征的命名权重；NULL 表示组内等权)
 #' @return data.frame with Immune_Score, Top_immune_cell, Cor_value1 and
-#'   per-trait correlations (閸忓秶鏌呯拠鍕瀻閵嗕焦娓跺铏规祲閸忓磭绮忛懗鐐偓浣烘祲閸忓磭閮撮弫鏉垮挤閸氬嫮绮忛懗鐐垫祲閸?
+#'   per-trait correlations (免疫分、主要相关细胞、相关系数及各特征相关值)
 #' @export
 calc_immune_score <- function(cache, genes, method = "timer", weights = NULL) {
   genes <- unique(as.character(genes))
@@ -119,15 +127,15 @@ calc_immune_score <- function(cache, genes, method = "timer", weights = NULL) {
   cbind(out, as.data.frame(cm, check.names = FALSE))
 }
 
-#' Metabolic dimension score (娴狅綀闃跨紒鏉戝鐠囧嫬鍨?
+#' Metabolic dimension score (代谢维度评分)
 #'
 #' Weighted mean of |spearman r| between the gene and 7 GSVA metabolic
-#' pathways. 閸╁搫娲滄稉?7 閺夆€插敩鐠嬨垽鈧柨绶為惃鍕閺?|閻╃鍙х化缁樻殶| 閸у洤鈧鈧?#'
-#' @param cache cancer cache (閻у瞼顫掔紓鎾崇摠)
-#' @param genes gene symbols (閸╁搫娲滅粭锕€褰?
-#' @param weights named weights per pathway (閸氬嫪鍞拫銏も偓鏂跨窞閺夊啴鍣搁敍姹礥LL 娴ｈ法鏁ゆ妯款吇)
+#' pathways. 代谢分 = 基因与 7 条 GSVA 代谢途径加权 |Spearman r| 的加权均值。
+#' @param cache cancer cache (癌种缓存)
+#' @param genes gene symbols (基因符号)
+#' @param weights named weights per pathway (各途径的命名权重；NULL 表示等权)
 #' @return data.frame with Metabolic_Score, Top_metabolic_trait, Cor_value2
-#'   and per-pathway correlations (娴狅綀闃跨拠鍕瀻閵嗕焦娓跺铏规祲閸忔娊鈧柨绶為崣濠傛倗閼奉亞娴夐崗?
+#'   and per-pathway correlations (代谢分、主要相关途径、相关系数及各途径相关值)
 #' @export
 calc_metabolic_score <- function(cache, genes, weights = NULL) {
   genes <- unique(as.character(genes))

@@ -2,22 +2,22 @@
 % Please edit documentation in R/scoring_immune_meta.R
 \name{calc_metabolic_score}
 \alias{calc_metabolic_score}
-\title{Metabolic dimension score (娴狅綀闃跨紒鏉戝鐠囧嫬鍨?}
+\title{Metabolic dimension score (代谢维度评分)}
 \usage{
 calc_metabolic_score(cache, genes, weights = NULL)
 }
 \arguments{
-\item{cache}{cancer cache (閻у瞼顫掔紓鎾崇摠)}
+\item{cache}{cancer cache (癌种缓存)}
 
-\item{genes}{gene symbols (閸╁搫娲滅粭锕€褰?}
+\item{genes}{gene symbols (基因符号)}
 
-\item{weights}{named weights per pathway (閸氬嫪鍞拫銏も偓鏂跨窞閺夊啴鍣搁敍姹礥LL 娴ｈ法鏁ゆ妯款吇)}
+\item{weights}{named weights per pathway (各途径的命名权重；NULL 表示等权)}
 }
 \value{
 data.frame with Metabolic_Score, Top_metabolic_trait, Cor_value2
-  and per-pathway correlations (娴狅綀闃跨拠鍕瀻閵嗕焦娓跺铏规祲閸忔娊鈧柨绶為崣濠傛倗閼奉亞娴夐崗?
+  and per-pathway correlations (代谢分、主要相关途径、相关系数及各途径相关值)
 }
 \description{
 Weighted mean of |spearman r| between the gene and 7 GSVA metabolic
-pathways. 閸╁搫娲滄稉?7 閺夆€插敩鐠嬨垽鈧柨绶為惃鍕閺?|閻╃鍙х化缁樻殶| 閸у洤鈧鈧?#'
+pathways. 代谢分 = 基因与 7 条 GSVA 代谢途径加权 |Spearman r| 的加权均值。
 }

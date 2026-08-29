@@ -88,8 +88,10 @@
 #' @return data.frame with columns gene, family, primary, ubi_type,
 #'   ubi_type_full, ubi_score, feature_score
 #' @examples
+#' \donttest{
 #' luad <- load_cancer_data("LUAD")
 #' head(annotate_genes(luad, c("MDM2", "TRIM44", "EGFR")))
+#' }
 #' @export
 annotate_genes <- function(cache, genes) {
   genes <- unique(trimws(as.character(genes)))

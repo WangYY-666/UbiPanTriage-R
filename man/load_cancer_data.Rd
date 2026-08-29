@@ -23,5 +23,7 @@ expression, immune infiltration, metabolism GSVA, per-gene statistics) for
 one cancer type. 载入某个癌种的预计算本地数据，用于即时评分。
 }
 \examples{
+\donttest{
 luad <- load_cancer_data("LUAD")
+}
 }

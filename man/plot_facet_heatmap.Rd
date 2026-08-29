@@ -14,6 +14,14 @@ plot_facet_heatmap(
 }
 \arguments{
 \item{d}{long data.frame with columns Gene, Cancer, Dim, Score}
+
+\item{score_col}{column name of the score (评分列名)}
+
+\item{dim_col}{column name of the dimension (维度列名)}
+
+\item{gene_col}{column name of the gene (基因列名)}
+
+\item{cancer_col}{column name of the cancer (癌种列名)}
 }
 \value{
 a ggplot object

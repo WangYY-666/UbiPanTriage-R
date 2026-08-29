@@ -2,20 +2,20 @@
 % Please edit documentation in R/scoring_immune_meta.R
 \name{immune_cor}
 \alias{immune_cor}
-\title{Immune infiltration correlation (閸忓秶鏌呭ù鍛婇紟閻╃鍙ч幀褏鐓╅梼?}
+\title{Immune infiltration correlation (免疫浸润相关矩阵)}
 \usage{
 immune_cor(cache, genes, method = "timer")
 }
 \arguments{
-\item{cache}{cancer cache (閻у瞼顫掔紓鎾崇摠)}
+\item{cache}{cancer cache (癌种缓存)}
 
-\item{genes}{gene symbols (閸╁搫娲滅粭锕€褰?}
+\item{genes}{gene symbols (基因符号)}
 
 \item{method}{immune method: timer / cibersort / mcp / ssgsea / xcell}
 }
 \value{
-matrix genes x immune traits (閸╁搫娲?x 閸忓秶鏌呯紒鍡氬劒閻╃鍙ч惌鈺呮█)
+matrix genes x immune traits (基因 x 免疫特征的相关系数矩阵)
 }
 \description{
-Immune infiltration correlation (閸忓秶鏌呭ù鍛婇紟閻╃鍙ч幀褏鐓╅梼?
+Immune infiltration correlation (免疫浸润相关矩阵)
 }

@@ -6,6 +6,14 @@
 \usage{
 immune_traits(cache, method = "timer")
 }
+\arguments{
+\item{cache}{cancer cache (癌种缓存)}
+
+\item{method}{immune method: timer / cibersort / mcp / ssgsea / xcell}
+}
+\value{
+character vector of immune cell trait names (免疫细胞特征名)
+}
 \description{
 Immune trait names for a method (某免疫浸润方法下的细胞特征名)
 }

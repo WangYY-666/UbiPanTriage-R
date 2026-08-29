@@ -2,18 +2,18 @@
 % Please edit documentation in R/scoring_immune_meta.R
 \name{metabolic_cor}
 \alias{metabolic_cor}
-\title{Metabolic pathway correlation (娴狅綀闃块柅鏂跨窞閻╃鍙ч幀褏鐓╅梼?}
+\title{Metabolic pathway correlation (代谢途径相关矩阵)}
 \usage{
 metabolic_cor(cache, genes)
 }
 \arguments{
-\item{cache}{cancer cache (閻у瞼顫掔紓鎾崇摠)}
+\item{cache}{cancer cache (癌种缓存)}
 
-\item{genes}{gene symbols (閸╁搫娲滅粭锕€褰?}
+\item{genes}{gene symbols (基因符号)}
 }
 \value{
-matrix genes x pathways (閸╁搫娲?x 娴狅綀闃块柅鏂跨窞閻╃鍙ч惌鈺呮█)
+matrix genes x pathways (基因 x 代谢途径的相关系数矩阵)
 }
 \description{
-Metabolic pathway correlation (娴狅綀闃块柅鏂跨窞閻╃鍙ч幀褏鐓╅梼?
+Metabolic pathway correlation (代谢途径相关矩阵)
 }

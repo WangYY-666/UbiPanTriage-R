@@ -35,6 +35,10 @@ gene_expr_raw <- function(cache, gene, unit = c("tpm", "count", "fpkm")) {
 }
 
 #' log2(x+1) gene expression for display (log2(x+1) 显示尺度)
+#' @param cache cancer cache (癌种缓存)
+#' @param gene gene symbol (基因符号)
+#' @param unit expression unit: "tpm" (default) / "count" / "fpkm"
+#' @return named numeric vector of log2(expression + 1) (log2 表达命名向量)
 #' @export
 gene_expr_log2 <- function(cache, gene, unit = c("tpm", "count", "fpkm")) {
   log2(gene_expr_raw(cache, gene, unit) + 1)
@@ -99,6 +103,10 @@ plot_expr_compare <- function(cache, gene, unit = c("tpm", "count", "fpkm"),
 #' One row per gene, one column per dimension; point color and size encode
 #' the score, genes are ordered by the combined score.
 #' @param d long data.frame with columns Gene, Dim, Score, Combined
+#' @param gene_col column name of the gene (基因列名)
+#' @param dim_col column name of the dimension (维度列名)
+#' @param score_col column name of the score (评分列名)
+#' @param comb_col column name of the combined score used for ordering (综合分列名)
 #' @return a ggplot object
 #' @export
 plot_4d_dot <- function(d, gene_col = "Gene", dim_col = "Dim",
@@ -128,6 +136,10 @@ plot_4d_dot <- function(d, gene_col = "Gene", dim_col = "Dim",
 
 #' Gene x cancer score heatmap, one facet per dimension (分面热图)
 #' @param d long data.frame with columns Gene, Cancer, Dim, Score
+#' @param score_col column name of the score (评分列名)
+#' @param dim_col column name of the dimension (维度列名)
+#' @param gene_col column name of the gene (基因列名)
+#' @param cancer_col column name of the cancer (癌种列名)
 #' @return a ggplot object
 #' @export
 plot_facet_heatmap <- function(d, score_col = "Score", dim_col = "Dim",
@@ -160,6 +172,7 @@ plot_facet_heatmap <- function(d, score_col = "Score", dim_col = "Dim",
 #' @param threshold score cutoff (default 0.5)
 #' @param top_n number of genes to show, ordered by the combined score
 #' @param comb_col combined-score column used for ordering
+#' @param direction optional pre-computed direction vector (可选：直接指定方向)
 #' @return a ggplot object
 #' @export
 plot_alluvial <- function(d, score_cols = c(Basic = "Basic_Score", Immune = "Immune_Score",
@@ -358,6 +371,7 @@ plot_3d_bubble <- function(d, type_col = NULL) {
 #' @param value score column used for ranking (用于排序的评分列)
 #' @param gene_col gene column (基因列)
 #' @param top_n number of genes to show (显示基因数)
+#' @param label label text for the score axis and title (评分轴/标题标签)
 #' @return a ggplot object
 #' @export
 plot_ranking_bar <- function(d, value = "Combined_Score", gene_col = "Gene",

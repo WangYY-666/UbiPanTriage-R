@@ -15,9 +15,13 @@ plot_cor_heatmap(
 \arguments{
 \item{d}{long data.frame with columns Cancer, Trait, Cor}
 
-\item{title}{plot title}
+\item{title}{plot title (图标题)}
 
-\item{low/high}{heatmap gradient colors}
+\item{low}{low-end gradient color (低值渐变颜色)}
+
+\item{high}{high-end gradient color (高值渐变颜色)}
+
+\item{p_col}{column name of the p value used for significance stars (P 值列名)}
 }
 \value{
 a ggplot object

@@ -24,6 +24,8 @@ plot_alluvial(
 \item{top_n}{number of genes to show, ordered by the combined score}
 
 \item{comb_col}{combined-score column used for ordering}
+
+\item{direction}{optional pre-computed direction vector (可选：直接指定方向)}
 }
 \value{
 a ggplot object

@@ -2,26 +2,26 @@
 % Please edit documentation in R/scoring_immune_meta.R
 \name{calc_immune_score}
 \alias{calc_immune_score}
-\title{Immune dimension score (閸忓秶鏌呯紒鏉戝鐠囧嫬鍨?}
+\title{Immune dimension score (免疫维度评分)}
 \usage{
 calc_immune_score(cache, genes, method = "timer", weights = NULL)
 }
 \arguments{
-\item{cache}{cancer cache (閻у瞼顫掔紓鎾崇摠)}
+\item{cache}{cancer cache (癌种缓存)}
 
-\item{genes}{gene symbols (閸╁搫娲滅粭锕€褰?}
+\item{genes}{gene symbols (基因符号)}
 
-\item{method}{immune method (閸忓秶鏌呭ù鍛婇紟閺傝纭?}
+\item{method}{immune method (免疫浸润方法)}
 
-\item{weights}{named weights per trait (閸氬嫬鍘ら悿顐ょ矎閼崇偞娼堥柌宥忕幢NULL 娴ｈ法鏁ゆ妯款吇)}
+\item{weights}{named weights per trait (各特征的命名权重；NULL 表示组内等权)}
 }
 \value{
 data.frame with Immune_Score, Top_immune_cell, Cor_value1 and
-  per-trait correlations (閸忓秶鏌呯拠鍕瀻閵嗕焦娓跺铏规祲閸忓磭绮忛懗鐐偓浣烘祲閸忓磭閮撮弫鏉垮挤閸氬嫮绮忛懗鐐垫祲閸?
+  per-trait correlations (免疫分、主要相关细胞、相关系数及各特征相关值)
 }
 \description{
 Weighted mean of |spearman r| between the gene and immune infiltration
 traits; default weights follow the LUAD example (CD8/Macrophage/DC
 emphasized). Top trait and signed correlation are also reported.
-閸╁搫娲滄稉搴″帳閻ゎ偅韫堝☉锔惧瀵颁胶娈戦崝鐘虫綀 |閻╃鍙х化缁樻殶| 閸у洤鈧》绱辨妯款吇閺夊啴鍣搁崥?LUAD 缁€杞扮伐閵?#'
+免疫分 = 基因与免疫浸润特征加权 |Spearman r| 的加权均值；权重默认按 LUAD 示例侧重 CD8 / Macrophage / DC，并报告主要相关细胞与相关方向。
 }

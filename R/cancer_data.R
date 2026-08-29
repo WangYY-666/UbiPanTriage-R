@@ -98,7 +98,9 @@ available_cancers <- function(data_dir = system.file("extdata", package = "UbiPa
 #' @param data_dir directory containing the cache files (缓存目录).
 #' @return a list (cache object) with all data needed for scoring.
 #' @examples
+#' \donttest{
 #' luad <- load_cancer_data("LUAD")
+#' }
 #' @export
 load_cancer_data <- function(cancer = "LUAD",
                              data_dir = system.file("extdata", package = "UbiPanTriage")) {
@@ -136,6 +138,9 @@ expr_for_plot <- function(cache, gene) {
   d[d$type %in% c("Tumor", "Normal"), , drop = FALSE]
 }
 #' Immune trait names for a method (某免疫浸润方法下的细胞特征名)
+#' @param cache cancer cache (癌种缓存)
+#' @param method immune method: timer / cibersort / mcp / ssgsea / xcell
+#' @return character vector of immune cell trait names (免疫细胞特征名)
 #' @export
 immune_traits <- function(cache, method = "timer") {
   d <- cache$immune[[method]]
@@ -143,11 +148,15 @@ immune_traits <- function(cache, method = "timer") {
   .strip_suffix(setdiff(colnames(d), "ID"), method)
 }
 #' Metabolic pathway names (代谢途径名称)
+#' @param cache cancer cache (癌种缓存)
+#' @return character vector of GSVA metabolic pathway names (代谢途径名称)
 #' @export
 metabolic_traits <- function(cache) {
   setdiff(colnames(cache$metabolism), "ID")
 }
 #' Default immune weights per method (各免疫方法的默认权重)
+#' @param method immune method: timer / cibersort / mcp / ssgsea / xcell
+#' @return NULL; a NULL weight vector means equal weighting within the method
 #' @export
 default_immune_weights <- function(method = "timer") {
   # NULL -> all traits weighted equally within every method (NULL = equal weight inside each method)

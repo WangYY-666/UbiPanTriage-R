@@ -6,6 +6,9 @@
 # and an auto-printed app object would launch a real server via print.shiny.appobj.
 # ============================================================================
 skip_if_not_installed("shiny")
+cache_file <- system.file("extdata", "LUAD_cache.rds", package = "UbiPanTriage")
+skip_if_not(file.exists(cache_file),
+            "LUAD cache not bundled (run UbiPanTriage::download_extdata() first)")
 suppressPackageStartupMessages({
   library(shiny)
   library(bslib)

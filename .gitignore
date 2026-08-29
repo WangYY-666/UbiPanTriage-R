@@ -6,6 +6,10 @@
 # local library
 .Rlibs/
 
+# R CMD check / build artifacts
+*.Rcheck/
+*.tar.gz
+
 # bundled 33-cancer data: kept in the `data` branch; fetch via download_extdata()
 inst/extdata/
 

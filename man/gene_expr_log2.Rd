@@ -6,6 +6,16 @@
 \usage{
 gene_expr_log2(cache, gene, unit = c("tpm", "count", "fpkm"))
 }
+\arguments{
+\item{cache}{cancer cache (癌种缓存)}
+
+\item{gene}{gene symbol (基因符号)}
+
+\item{unit}{expression unit: "tpm" (default) / "count" / "fpkm"}
+}
+\value{
+named numeric vector of log2(expression + 1) (log2 表达命名向量)
+}
 \description{
 log2(x+1) gene expression for display (log2(x+1) 显示尺度)
 }

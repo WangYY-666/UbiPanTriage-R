@@ -6,6 +6,12 @@
 \usage{
 metabolic_traits(cache)
 }
+\arguments{
+\item{cache}{cancer cache (癌种缓存)}
+}
+\value{
+character vector of GSVA metabolic pathway names (代谢途径名称)
+}
 \description{
 Metabolic pathway names (代谢途径名称)
 }

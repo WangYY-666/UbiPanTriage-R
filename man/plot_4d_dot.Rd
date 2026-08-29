@@ -14,6 +14,14 @@ plot_4d_dot(
 }
 \arguments{
 \item{d}{long data.frame with columns Gene, Dim, Score, Combined}
+
+\item{gene_col}{column name of the gene (基因列名)}
+
+\item{dim_col}{column name of the dimension (维度列名)}
+
+\item{score_col}{column name of the score (评分列名)}
+
+\item{comb_col}{column name of the combined score used for ordering (综合分列名)}
 }
 \value{
 a ggplot object

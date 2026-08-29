@@ -22,6 +22,8 @@ classification and the tier-based feature score (0-1). Genes without
 annotation get \code{NA} scores (custom genes are not penalized).
 }
 \examples{
+\donttest{
 luad <- load_cancer_data("LUAD")
 head(annotate_genes(luad, c("MDM2", "TRIM44", "EGFR")))
+}
 }
