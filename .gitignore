@@ -1,0 +1,13 @@
+# R-specific
+.Rproj.user/
+.Rhistory
+.RData
+
+# local library
+.Rlibs/
+
+# bundled 33-cancer data: kept in the `data` branch; fetch via download_extdata()
+inst/extdata/
+
+# split data parts (tracked on the `data` branch only)
+extdata_parts/

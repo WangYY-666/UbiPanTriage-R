@@ -1,0 +1,48 @@
+Package: UbiPanTriage
+Type: Package
+Title: Pan-Cancer Ubiquitin Immunometabolic Scoring for Gene Sets (泛癌泛素免疫代谢四维评分)
+Version: 0.4.0
+Authors@R: person("Lianxi", "R", email = "wangyy_666@163.com", role = c("aut", "cre"))
+Description: Computes a four-dimensional (Ubiquitin / Basic / Immune / Metabolic) scoring
+    system for user-defined gene sets in TCGA cancers. The Basic dimension
+    combines expression, differential expression, univariate Cox survival and
+    ROC evidence; the Immune and Metabolic dimensions are based on weighted
+    Spearman correlations with immune infiltration (TIMER / CIBERSORT /
+    MCPcounter / ssGSEA / xCell) and GSVA metabolic pathway scores. All
+    sub-item weights are user-adjustable. Includes an interactive Shiny
+    interface for gene-set pan-cancer ranking, single-gene query (radar /
+    correlation / boxplot / ROC / KM / automatic bilingual inference) and
+    custom gene-set upload. 面向泛癌转录组，对用户基因集进行基础/免疫/代谢
+    三维评分、排序与可视化，并提供交互式网页界面。
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports:
+    bslib,
+    dplyr,
+    DT,
+    ggplot2,
+    grid,
+    openxlsx,
+    patchwork,
+    png,
+    pROC,
+    readxl,
+    scales,
+    shiny,
+    stringr,
+    survival,
+    survminer,
+    tibble,
+    tidyr,
+    timeROC
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+RoxygenNote: 7.3.3
+URL: https://github.com/WangYY-666/UbiPanTriage-R
+BugReports: https://github.com/WangYY-666/UbiPanTriage-R/issues
+
