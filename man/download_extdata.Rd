@@ -10,6 +10,7 @@ download_extdata(
   dest_dir = system.file(package = "UbiPanTriage"),
   quiet = FALSE,
   local_dir = NULL,
+  release = NULL,
   timeout_sec = 3600
 )
 }
@@ -27,6 +28,11 @@ unpacked; defaults to the installed package directory (数据安装目录，
 \item{local_dir}{optional path to a complete \code{extdata} folder;
 when given, the data are copied from this folder instead of being
 downloaded (offline / local install, 本地 extdata 目录，提供时直接复制安装)。}
+
+\item{release}{optional GitHub Release tag; when given, the data parts
+are downloaded from \code{https://github.com/<repo>/releases/download/<release>/}
+using \code{extdata_release_manifest.csv} instead of the \code{data} branch
+(备选发布源：GitHub Release 网页上传的分卷，data 分支不可用时使用)。}
 
 \item{timeout_sec}{per-part download timeout in seconds (单分片下载超时秒数)。}
 }

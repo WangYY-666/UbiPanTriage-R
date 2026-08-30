@@ -57,12 +57,35 @@ check_extdata <- function(data_dir = system.file("extdata", package = "UbiPanTri
   utils::read.csv(f, stringsAsFactors = FALSE)
 }
 
+#' Read the release parts manifest shipped with the package (读取随包的发布分卷清单)
+#' @noRd
+.read_release_manifest <- function() {
+  f <- system.file("extdata_release_manifest.csv", package = "UbiPanTriage")
+  if (!file.exists(f))
+    stop("release manifest not found in the installed package; ",
+         "please reinstall UbiPanTriage (remotes::install_github(\"",
+         .data_repo(), "\"))")
+  utils::read.csv(f, stringsAsFactors = FALSE)
+}
+
 #' Persistent cache directory for downloaded parts (分片本地缓存目录)
+#'
+#' Falls back to the session temp directory when the user cache dir cannot be
+#' created or written (e.g. a locked-down \code{R_USER_CACHE_DIR}), so a cache
+#' location problem never blocks the download.
 #' @noRd
 .parts_cache_dir <- function() {
   d <- file.path(tools::R_user_dir("UbiPanTriage", "cache"), "parts")
-  dir.create(d, recursive = TRUE, showWarnings = FALSE)
-  d
+  ok <- tryCatch({
+    dir.create(d, recursive = TRUE, showWarnings = FALSE)
+    file.access(d, 2L) == 0L
+  }, error = function(e) FALSE)
+  if (isTRUE(ok)) return(d)
+  alt <- file.path(tempdir(), "UbiPanTriage_parts")
+  dir.create(alt, recursive = TRUE, showWarnings = FALSE)
+  warning("R user cache dir is not writable; using temporary cache: ", alt,
+          call. = FALSE)
+  alt
 }
 
 #' Download and install the bundled pan-cancer data (下载并安装内置泛癌数据)
@@ -89,6 +112,10 @@ check_extdata <- function(data_dir = system.file("extdata", package = "UbiPanTri
 #' @param local_dir optional path to a complete \code{extdata} folder;
 #'   when given, the data are copied from this folder instead of being
 #'   downloaded (offline / local install, 本地 extdata 目录，提供时直接复制安装)。
+#' @param release optional GitHub Release tag; when given, the data parts
+#'   are downloaded from \code{https://github.com/<repo>/releases/download/<release>/}
+#'   using \code{extdata_release_manifest.csv} instead of the \code{data} branch
+#'   (备选发布源：GitHub Release 网页上传的分卷，data 分支不可用时使用)。
 #' @param quiet suppress progress messages (是否静默)。
 #' @param timeout_sec per-part download timeout in seconds (单分片下载超时秒数)。
 #' @return invisible path to the installed \code{extdata} directory.
@@ -103,6 +130,7 @@ download_extdata <- function(repo = .data_repo(),
                              dest_dir = system.file(package = "UbiPanTriage"),
                              quiet = FALSE,
                              local_dir = NULL,
+                             release = NULL,
                              timeout_sec = 3600) {
   ext_dir <- file.path(dest_dir, "extdata")
   if (length(available_cancers(ext_dir)) >= 33) {
@@ -139,7 +167,7 @@ download_extdata <- function(repo = .data_repo(),
     return(invisible(ext_dir))
   }
 
-  man   <- .read_manifest()
+  man   <- if (is.null(release)) .read_manifest() else .read_release_manifest()
   parts <- man$part
   tmp   <- .parts_cache_dir()
   dl    <- file.path(tmp, paste0(".dl_", Sys.getenv("USERNAME", "user")))
@@ -150,16 +178,21 @@ download_extdata <- function(repo = .data_repo(),
   on.exit(options(timeout = old_timeout), add = TRUE)
   options(timeout = timeout_sec)
 
+  src_label <- if (is.null(release)) paste0(repo, "@", ref) else paste0(repo, " release:", release)
   if (!quiet) message("Downloading ", length(parts), " data parts (",
                       sprintf("%.1f", sum(man$bytes) / 1e9), " GB) from ",
-                      repo, "@", ref, " ...")
+                      src_label, " ...")
   for (i in seq_along(parts)) {
     pf <- file.path(dl, parts[i])
     need <- !file.exists(pf) ||
       !identical(as.character(tools::md5sum(pf)), man$md5[i])
     if (need) {
-      url <- file.path("https://raw.githubusercontent.com", repo, ref,
-                       "extdata_parts", parts[i])
+      url <- if (is.null(release)) {
+        file.path("https://raw.githubusercontent.com", repo, ref,
+                   "extdata_parts", parts[i])
+      } else {
+        file.path("https://github.com", repo, "releases/download", release, parts[i])
+      }
       if (!quiet) message(sprintf("  [%d/%d] %s (%.0f MB)", i, length(parts),
                                   parts[i], man$bytes[i] / 1e6))
       ok <- tryCatch({
@@ -172,11 +205,15 @@ download_extdata <- function(repo = .data_repo(),
                "The parts are hosted on the '", ref, "' branch of ", repo,
                " under extdata_parts/.\n",
                "Possible causes: (1) the '", ref,
-               "' branch has not been pushed to GitHub yet;\n",
+               "' branch has not been published on GitHub yet;\n",
                "(2) the network cannot reach raw.githubusercontent.com\n",
-               "    (proxy/firewall, or slow connection).\n",
-               "Fix: push the data branch, retry later, or install from a local\n",
-               "extdata folder with download_extdata(local_dir = \"path/to/extdata\").\n",
+               "    (proxy / firewall / GFW; common in mainland China).\n",
+               "Fix: (1) ask the repository owner to publish the data branch\n",
+               "    (git push -u origin data), then retry;\n",
+               "(2) if the owner published a GitHub Release carrying the data\n",
+               "    parts, retry with download_extdata(release = \"<tag>\", ...);\n",
+               "(3) or install offline from a complete extdata folder with\n",
+               "    download_extdata(local_dir = \"path/to/extdata\").\n",
                "URL: ", url)
         stop(e)
       })
@@ -210,4 +247,3 @@ download_extdata <- function(repo = .data_repo(),
                       " cancer caches installed under ", ext_dir)
   invisible(ext_dir)
 }
-

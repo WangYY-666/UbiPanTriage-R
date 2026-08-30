@@ -1,3 +1,16 @@
+## 0.5.2 (2026-08-31)
+- Publish the complete 46-part pan-cancer data on the GitHub `data` branch so
+  `download_extdata()` works for all users (previously the branch was not
+  pushed and downloads failed with HTTP 404)
+- `download_extdata()` gains a `release` argument: download the data parts
+  from a GitHub Release (e.g. `download_extdata(release = "data-v1")`) as an
+  alternative to the `data` branch; ships the parts manifest
+  `inst/extdata_release_manifest.csv`
+- More robust parts cache: fall back to the session temp directory when the R
+  user cache dir is not writable, so downloads no longer fail on locked-down
+  cache locations
+- README / FAQ updated with network guidance for mainland China
+
 ## 0.5.1 (2026-08-30)
 - Remove plot_alluvial() (gene -> cancer -> direction alluvial diagram) and its
   README section; ggalluvial dropped from Suggests
