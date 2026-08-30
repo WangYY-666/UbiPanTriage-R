@@ -9,3 +9,5 @@
 ^docs$
 ^extdata_parts$
 ^\.gitignore$
+
+^README\.md\.bak$

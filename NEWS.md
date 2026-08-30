@@ -1,3 +1,13 @@
+## 0.5.0 (2026-08-30)
+- README fully rewritten in English (SCI style): web portal link
+  (http://129.211.3.138/) for quick checks; the R package positioned as the
+  full-autonomy version with method selection, weight tuning and downloadable
+  pre-computed data
+- Example gallery rebuilt with the current package code and real TCGA data:
+  ubiquitination-related gene set (9 genes x 5 cancers) + single-gene MUL1
+  query, matching the Shiny outputs; reproducible script added at
+  data-raw/make_readme_figures.R
+
 ## 0.4.0 (2026-08-30)
 - GitHub 发布：源码已上传至 https://github.com/WangYY-666/UbiPanTriage-R，支持 `remotes::install_github("WangYY-666/UbiPanTriage-R")` 一键安装
 - 数据分发：33 癌种预计算缓存（约 4.2 GB）不再随源码仓库推送，改由 `download_extdata()` 从 GitHub `data` 分支分片下载、校验（MD5）、拼接并安装到本地；`check_extdata()` 可随时检查数据是否就绪
