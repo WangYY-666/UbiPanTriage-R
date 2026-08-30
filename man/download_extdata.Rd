@@ -9,6 +9,7 @@ download_extdata(
   ref = .data_ref(),
   dest_dir = system.file(package = "UbiPanTriage"),
   quiet = FALSE,
+  local_dir = NULL,
   timeout_sec = 3600
 )
 }
@@ -22,6 +23,10 @@ unpacked; defaults to the installed package directory (数据安装目录，
 默认已安装包目录)。}
 
 \item{quiet}{suppress progress messages (是否静默)。}
+
+\item{local_dir}{optional path to a complete \code{extdata} folder;
+when given, the data are copied from this folder instead of being
+downloaded (offline / local install, 本地 extdata 目录，提供时直接复制安装)。}
 
 \item{timeout_sec}{per-part download timeout in seconds (单分片下载超时秒数)。}
 }

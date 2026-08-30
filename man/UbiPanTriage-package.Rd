@@ -10,7 +10,7 @@ Computes a four-dimension (Ubiquitin / Basic / Immune / Metabolic)
 scoring system for user-defined gene sets in TCGA pan-cancer
 transcriptomes, ranks genes across cancers, generates publication-style
 figures (radar, correlation heatmaps, boxplots, ROC, KM survival,
-alluvial, UpSet), and provides an interactive Shiny interface plus
+UpSet), and provides an interactive Shiny interface plus
 automatic bilingual (EN/ZH) research-hypothesis inference.
 泛癌泛素免疫代谢四维评分系统：评分、排序、可视化与交互式界面。
 }

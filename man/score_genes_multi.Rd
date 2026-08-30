@@ -10,7 +10,8 @@ score_genes_multi(
   basic_params = default_basic_params(),
   immune_params = default_immune_params(),
   metabolic_params = default_metabolic_params(),
-  combine_params = default_combine_params()
+  combine_params = default_combine_params(),
+  feature_scores = NULL
 )
 }
 \arguments{
@@ -25,6 +26,10 @@ score_genes_multi(
 \item{metabolic_params}{parameters for the metabolic dimension}
 
 \item{combine_params}{parameters for combining dimensions}
+
+\item{feature_scores}{optional named numeric vector of user feature scores
+(0-1) that replace the annotation-tier ubiquitin score as the
+"ubiquitin" dimension; genes without a score get NA}
 }
 \value{
 list with \code{scores_long} (gene x cancer) and \code{summary}

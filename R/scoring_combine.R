@@ -122,6 +122,9 @@ calc_ubi_score <- function(cache, genes, use_activity = FALSE) {
 #' @param immune_params parameters for the immune dimension
 #' @param metabolic_params parameters for the metabolic dimension
 #' @param combine_params parameters for combining dimensions
+#' @param feature_scores optional named numeric vector of user feature scores
+#'   (0-1) that replace the annotation-tier ubiquitin score as the
+#'   "ubiquitin" dimension; genes without a score get NA
 #' @return list with \code{scores} (main table), \code{immune},
 #'   \code{metabolic}, \code{annotation}, \code{params}
 #' @examples
@@ -129,17 +132,32 @@ calc_ubi_score <- function(cache, genes, use_activity = FALSE) {
 #' luad <- load_cancer_data("LUAD")
 #' r <- score_genes(luad, c("MDM2", "TRIM44", "UBE2C"))
 #' print(r$scores[, c("Gene", "Ubi_Score", "Basic_Score", "Immune_Score", "Metabolic_Score")])
+#' r2 <- score_genes(luad, c("MUL1", "MDM2"),
+#'                   feature_scores = c(MUL1 = 0.95, MDM2 = 0.80))
 #' }
 #' @export
 score_genes <- function(cache, genes,
                         basic_params = default_basic_params(),
                         immune_params = default_immune_params(),
                         metabolic_params = default_metabolic_params(),
-                        combine_params = default_combine_params()) {
+                        combine_params = default_combine_params(),
+                        feature_scores = NULL) {
   basic_params   <- .merge_params(basic_params,   default_basic_params())
   immune_params  <- .merge_params(immune_params,  default_immune_params())
   metabolic_params <- .merge_params(metabolic_params, default_metabolic_params())
   combine_params <- .merge_params(combine_params, default_combine_params())
+
+  # custom user feature scores (0-1) replace the annotation-tier ubiquitin score
+  if (!is.null(feature_scores)) {
+    if (is.null(names(feature_scores)) || any(!nzchar(names(feature_scores))))
+      stop("feature_scores must be a named numeric vector (gene = score)")
+    feature_scores <- stats::setNames(as.numeric(feature_scores), names(feature_scores))
+    feature_scores <- feature_scores[!is.na(feature_scores)]
+    if (length(feature_scores) == 0)
+      stop("feature_scores contains no usable values")
+    if (any(feature_scores < 0 | feature_scores > 1))
+      stop("feature_scores must lie in [0, 1]")
+  }
 
   genes <- unique(trimws(as.character(genes)))
   genes <- genes[!is.na(genes) & genes != ""]
@@ -152,8 +170,16 @@ score_genes <- function(cache, genes,
   if (length(dims) == 0) stop("at least one dimension must be selected")
 
   # ---- dimension scores for query genes ----
-  ubi <- if ("ubiquitin" %in% dims)
-    calc_ubi_score(cache, genes, use_activity = isTRUE(combine_params$ubi_activity)) else NULL
+  ubi <- if ("ubiquitin" %in% dims) {
+    if (!is.null(feature_scores)) {
+      fs <- feature_scores[genes]
+      data.frame(gene = genes,
+                 Ubi_Score = unname(fs),
+                 Ubi_Type = ifelse(is.na(fs), NA_character_, "Feature"),
+                 Ubi_Type_Full = ifelse(is.na(fs), NA_character_, "User feature score"),
+                 stringsAsFactors = FALSE)
+    } else calc_ubi_score(cache, genes, use_activity = isTRUE(combine_params$ubi_activity))
+  } else NULL
   basic <- if ("basic" %in% dims)
     calc_basic_score(cache, genes,
                      weights = basic_params$weights,
@@ -167,7 +193,8 @@ score_genes <- function(cache, genes,
     calc_metabolic_score(cache, genes, metabolic_params$weights) else NULL
 
   # ---- background scores for percentile denominators ----
-  bg <- if (combine_params$rank_in == "universe") cache$universe else NULL
+  bg <- if (is.null(feature_scores) && combine_params$rank_in == "universe")
+    cache$universe else NULL
   bg_ubi <- bg_basic <- bg_imm <- bg_meta <- NULL
   if (!is.null(bg)) {
     if ("ubiquitin" %in% dims) bg_ubi <- calc_ubi_score(cache, bg,
@@ -270,10 +297,11 @@ score_genes_multi <- function(caches, genes,
                               basic_params = default_basic_params(),
                               immune_params = default_immune_params(),
                               metabolic_params = default_metabolic_params(),
-                              combine_params = default_combine_params()) {
+                              combine_params = default_combine_params(),
+                              feature_scores = NULL) {
   per <- lapply(names(caches), function(ca) {
     s <- score_genes(caches[[ca]], genes, basic_params, immune_params,
-                     metabolic_params, combine_params)
+                     metabolic_params, combine_params, feature_scores)
     s$scores$Cancer <- ca
     s
   })

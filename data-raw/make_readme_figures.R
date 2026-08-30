@@ -47,8 +47,6 @@ ggsave(file.path(fig_dir, "fig_geneset_heatmap.png"),
        plot_facet_heatmap(facet), width = 9, height = 5.5, dpi = 300)
 ggsave(file.path(fig_dir, "fig_geneset_ranking.png"),
        plot_ranking_grid(summ, top_n = nrow(summ)), width = 10, height = 7, dpi = 300)
-ggsave(file.path(fig_dir, "fig_geneset_alluvial.png"),
-       plot_alluvial(long, top_n = nrow(summ)), width = 9, height = 6, dpi = 300)
 ggsave(file.path(fig_dir, "fig_geneset_4d.png"),
        plot_4d_dot(d4), width = 7, height = 5.5, dpi = 300)
 

@@ -10,7 +10,8 @@ score_genes(
   basic_params = default_basic_params(),
   immune_params = default_immune_params(),
   metabolic_params = default_metabolic_params(),
-  combine_params = default_combine_params()
+  combine_params = default_combine_params(),
+  feature_scores = NULL
 )
 }
 \arguments{
@@ -25,6 +26,10 @@ score_genes(
 \item{metabolic_params}{parameters for the metabolic dimension}
 
 \item{combine_params}{parameters for combining dimensions}
+
+\item{feature_scores}{optional named numeric vector of user feature scores
+(0-1) that replace the annotation-tier ubiquitin score as the
+"ubiquitin" dimension; genes without a score get NA}
 }
 \value{
 list with \code{scores} (main table), \code{immune},
@@ -42,5 +47,7 @@ basic sub-items are re-weighted when a cancer lacks diff/normal tissue).
 luad <- load_cancer_data("LUAD")
 r <- score_genes(luad, c("MDM2", "TRIM44", "UBE2C"))
 print(r$scores[, c("Gene", "Ubi_Score", "Basic_Score", "Immune_Score", "Metabolic_Score")])
+r2 <- score_genes(luad, c("MUL1", "MDM2"),
+                  feature_scores = c(MUL1 = 0.95, MDM2 = 0.80))
 }
 }

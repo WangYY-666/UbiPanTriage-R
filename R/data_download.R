@@ -86,6 +86,9 @@ check_extdata <- function(data_dir = system.file("extdata", package = "UbiPanTri
 #' @param dest_dir directory into which the \code{extdata} folder will be
 #'   unpacked; defaults to the installed package directory (数据安装目录，
 #'   默认已安装包目录)。
+#' @param local_dir optional path to a complete \code{extdata} folder;
+#'   when given, the data are copied from this folder instead of being
+#'   downloaded (offline / local install, 本地 extdata 目录，提供时直接复制安装)。
 #' @param quiet suppress progress messages (是否静默)。
 #' @param timeout_sec per-part download timeout in seconds (单分片下载超时秒数)。
 #' @return invisible path to the installed \code{extdata} directory.
@@ -99,6 +102,7 @@ download_extdata <- function(repo = .data_repo(),
                              ref = .data_ref(),
                              dest_dir = system.file(package = "UbiPanTriage"),
                              quiet = FALSE,
+                             local_dir = NULL,
                              timeout_sec = 3600) {
   ext_dir <- file.path(dest_dir, "extdata")
   if (length(available_cancers(ext_dir)) >= 33) {
@@ -112,6 +116,28 @@ download_extdata <- function(repo = .data_repo(),
          "If the package was installed into a system library, reinstall it into ",
          "your personal library (e.g. remotes::install_github(...)) or pass ",
          "dest_dir = \"", normalizePath(tempdir(), winslash = "/"), "\".")
+
+  # ---- offline / local install: copy from an existing extdata folder ----
+  if (!is.null(local_dir)) {
+    if (!dir.exists(local_dir))
+      stop("local_dir does not exist: ", local_dir)
+    n_src <- length(available_cancers(local_dir))
+    if (n_src < 33)
+      stop("local_dir does not contain all 33 cancer caches (found ", n_src,
+           "); expected <CANCER>_cache.rds files under ", local_dir)
+    if (!quiet) message("Installing pre-computed data from local_dir: ", local_dir)
+    dir.create(ext_dir, recursive = TRUE, showWarnings = FALSE)
+    items <- list.files(local_dir, full.names = TRUE, all.files = FALSE,
+                        recursive = FALSE)
+    ok <- file.copy(items, ext_dir, recursive = TRUE, overwrite = TRUE)
+    if (!all(ok))
+      stop("failed to copy some files from local_dir: ", local_dir)
+    if (length(available_cancers(ext_dir)) < 33)
+      stop("local copy is incomplete; please re-run download_extdata()")
+    if (!quiet) message("Done. ", length(available_cancers(ext_dir)),
+                        " cancer caches installed under ", ext_dir)
+    return(invisible(ext_dir))
+  }
 
   man   <- .read_manifest()
   parts <- man$part
@@ -136,7 +162,25 @@ download_extdata <- function(repo = .data_repo(),
                        "extdata_parts", parts[i])
       if (!quiet) message(sprintf("  [%d/%d] %s (%.0f MB)", i, length(parts),
                                   parts[i], man$bytes[i] / 1e6))
-      utils::download.file(url, pf, mode = "wb", quiet = TRUE)
+      ok <- tryCatch({
+        utils::download.file(url, pf, mode = "wb", quiet = TRUE)
+        TRUE
+      }, error = function(e) {
+        msg <- conditionMessage(e)
+        if (grepl("404", msg, fixed = TRUE))
+          stop("cannot download data part '", parts[i], "' (HTTP 404).\n",
+               "The parts are hosted on the '", ref, "' branch of ", repo,
+               " under extdata_parts/.\n",
+               "Possible causes: (1) the '", ref,
+               "' branch has not been pushed to GitHub yet;\n",
+               "(2) the network cannot reach raw.githubusercontent.com\n",
+               "    (proxy/firewall, or slow connection).\n",
+               "Fix: push the data branch, retry later, or install from a local\n",
+               "extdata folder with download_extdata(local_dir = \"path/to/extdata\").\n",
+               "URL: ", url)
+        stop(e)
+      })
+      if (!isTRUE(ok)) stop("failed to download ", parts[i])
     }
     got <- as.character(tools::md5sum(pf))
     if (!identical(got, man$md5[i]))

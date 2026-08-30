@@ -100,6 +100,13 @@ check_extdata()      # should report 33 cancers ready
 > `download_extdata()` automatically skips completed chunks. If the package is
 > installed in a system library without write permission, reinstall into a
 > user library or pass a writable directory to `download_extdata(dest_dir = ...)`.
+>
+> **Offline / local install.** If you already have a complete `extdata` folder
+> (e.g. a copy from another computer or from `data-raw/`), skip the download:
+>
+> ```r
+> download_extdata(local_dir = "path/to/your/extdata")   # copy instead of download
+> ```
 
 ### Step 2 — launch the interactive app (optional)
 
@@ -196,13 +203,6 @@ plot_ranking_grid(summ, top_n = nrow(summ))
 ```
 
 ![Gene-set pan-cancer ranking](man/figures/fig_geneset_ranking.png)
-
-```r
-# Alluvial diagram: gene -> cancer -> recommended direction
-plot_alluvial(long, top_n = nrow(summ))
-```
-
-![Gene-set alluvial diagram](man/figures/fig_geneset_alluvial.png)
 
 ```r
 # Four-dimension dot plot (gene x dimension)
@@ -306,6 +306,81 @@ gene_inference(luad, g, score_genes(luad, g), lang = "zh")
 ```
 
 ---
+### Example 3 — custom gene set (with or without custom feature scores)
+
+`score_genes()` / `score_genes_multi()` score **any gene set** found in the
+pre-computed per-cancer gene universe (a curated ~1,500-gene background per
+cancer). Genes outside the universe are skipped with a message. Non-ubiquitin
+genes within the universe are annotated as the default `Other` ubiquitin tier
+(0.6); the Basic / Immune / Metabolic dimensions are always computed. To drop
+the ubiquitin tier for a custom gene set, restrict the selected dimensions.
+
+```r
+luad <- load_cancer_data("LUAD")
+
+# (a) custom gene set WITHOUT custom scoring — any in-universe genes
+my_genes <- c("EGFR", "TP53", "ERBB2", "MTOR", "STAT3")   # non-ubiquitin
+r1 <- score_genes(luad, my_genes)
+r1$scores[, c("Gene", "Ubi_Type", "Ubi_Score", "Basic_Score",
+              "Immune_Score", "Metabolic_Score", "Combined_Score")]
+# non-ubiquitin genes fall back to the "Other" tier (0.6); to exclude the
+# ubiquitin dimension entirely, restrict the selected dimensions:
+cp  <- default_combine_params()
+cp$dimensions <- c("basic", "immune", "metabolic")
+r1b <- score_genes(luad, my_genes, combine_params = cp)
+```
+
+```r
+# (b) custom gene set WITH user feature scores (0-1):
+#     a named numeric vector replaces the annotation-tier ubiquitin score
+my_genes2 <- c("MUL1", "MDM2", "TRIM44")
+my_scores <- c(MUL1 = 0.95, MDM2 = 0.80, TRIM44 = 0.70)
+r2 <- score_genes(luad, my_genes2, feature_scores = my_scores)
+r2$scores[, c("Gene", "Ubi_Type", "Ubi_Score", "Combined_Score")]
+# Ubi_Type = "Feature": your own scores are used as the ubiquitin dimension
+
+# pan-cancer version with the same custom scores
+caches <- setNames(lapply(c("LUAD", "BRCA", "LIHC"), load_cancer_data),
+                   c("LUAD", "BRCA", "LIHC"))
+r3 <- score_genes_multi(caches, my_genes2, feature_scores = my_scores)
+head(r3$summary)
+```
+
+> Custom gene sets can also be uploaded as a file in the Shiny app (tab ③:
+> `.txt / .csv / .tsv / .xlsx`, first column genes, optional second column
+> feature scores 0-1).
+
+### Example 4 — custom single gene
+
+Any single gene — ubiquitin-related or not — can be queried with the full
+single-gene pipeline of Example 2. Here we use `EGFR` as a non-ubiquitin
+custom gene:
+
+```r
+luad <- load_cancer_data("LUAD")
+g    <- "EGFR"          # any custom gene, ubiquitin-related or not
+
+s    <- score_genes(luad, g)
+s$scores                # four-dimension scores for the single gene
+
+# the same plot functions as Example 2 (NA dimensions are skipped):
+sc   <- as.list(s$scores[, c("Ubi_Score", "Basic_Score",
+                             "Immune_Score", "Metabolic_Score")])
+sc   <- sc[!is.na(sc)]
+plot_radar_fmsb(unlist(sc), gene = g)
+plot_immune_cor(luad, g)        # bar chart of immune infiltration |r|
+plot_metabolic_cor(luad, g)     # bar chart of metabolic pathway |r|
+plot_expr_box(luad, g)          # tumor vs. normal expression
+plot_roc_diag(luad, g)          # diagnostic ROC
+plot_km(luad, g)                # KM survival
+gene_inference(luad, g, s, lang = "en")   # automatic inference
+```
+
+> The same works for a custom single gene in the Shiny app (tab ④), with an
+> optional feature score (0-1).
+
+---
+
 
 ## Methods & parameter control
 
@@ -396,7 +471,7 @@ Full documentation: `help(package = "UbiPanTriage")`.
 | `plot_ranking` / `plot_ranking_bar` / `plot_ranking_grid` | Ranking charts |
 | `plot_score_heatmap` / `plot_facet_heatmap` | Score heatmaps |
 | `plot_4d_dot` / `plot_3d_bubble` | Four-dimension dot / 3D bubble |
-| `plot_alluvial` / `plot_upset_3dim` | Alluvial / UpSet diagrams |
+| `plot_upset_3dim` | UpSet diagram (cancers with top scores per dimension) |
 
 ### Inference & app
 
@@ -454,8 +529,11 @@ internet, ~4.2 GB).
 The package was installed into a system library. Reinstall into a user library,
 or pass a writable directory with `download_extdata(dest_dir = "...")`.
 
-**Q3. My download was interrupted?**
-Chunks are MD5-verified; re-running `download_extdata()` skips completed chunks.
+**Q3. My download was interrupted or fails with `404 Not Found`?**
+Chunks are MD5-verified; re-running `download_extdata()` skips completed
+chunks. A `404` means the `data` branch parts are not reachable from your
+network (or not yet published); in that case install from a local `extdata`
+folder with `download_extdata(local_dir = "...")`, or retry later.
 
 **Q4. How can I analyze a single cancer without downloading all data?**
 Build a cache structure with your own expression matrix and immune/metabolic

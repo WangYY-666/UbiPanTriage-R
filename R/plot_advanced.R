@@ -1,6 +1,6 @@
 # ============================================================================
 # plot_advanced.R - SCI-style plots for the pan-cancer interface
-# (expression comparison, 4D dot plot, facet heatmap, alluvial, UpSet, radar)
+# (expression comparison, 4D dot plot, facet heatmap, UpSet, radar)
 # ============================================================================
 
 #' Format numbers with three decimals (统一保留三位小数)
@@ -161,64 +161,6 @@ plot_facet_heatmap <- function(d, score_col = "Score", dim_col = "Dim",
                    strip.text = ggplot2::element_text(face = "bold", size = 11))
 }
 
-#' Alluvial diagram: gene -> cancer -> recommended direction (桑基图)
-#'
-#' For each gene x cancer, a direction is defined by the dimensions whose
-#' score exceeds the threshold (e.g. "Basic", "Immune+Metabolic", "None").
-#' The result is a hypothesis-generating overview and must be treated as a
-#' suggestion only (推论仅为建议，具体以实验为准).
-#' @param d long data.frame with columns Gene, Cancer, and score columns
-#' @param score_cols named character vector mapping dimension to score column
-#' @param threshold score cutoff (default 0.5)
-#' @param top_n number of genes to show, ordered by the combined score
-#' @param comb_col combined-score column used for ordering
-#' @param direction optional pre-computed direction vector (可选：直接指定方向)
-#' @return a ggplot object
-#' @export
-plot_alluvial <- function(d, score_cols = c(Basic = "Basic_Score", Immune = "Immune_Score",
-                                            Metabolic = "Metabolic_Score"),
-                          threshold = 0.5, top_n = 20,
-                          comb_col = "Combined_Score", direction = NULL) {
-  if (!requireNamespace("ggalluvial", quietly = TRUE))
-    return(.plot_na("package 'ggalluvial' is required"))
-  if (nrow(d) == 0) return(.plot_na("No data available"))
-  keep <- unique(d$Gene)
-  if (comb_col %in% colnames(d)) {
-    mv <- stats::aggregate(d[[comb_col]], by = list(g = d$Gene), mean, na.rm = TRUE)
-    keep <- as.character(mv$g[order(-mv$x)])
-    keep <- head(keep, top_n)
-  }
-  d <- d[d$Gene %in% keep, , drop = FALSE]
-  if (is.null(direction)) {
-    d$Direction <- apply(d[, unname(score_cols), drop = FALSE], 1, function(v) {
-      hi <- names(score_cols)[!is.na(v) & v > threshold]
-      if (length(hi) == 0) "None" else paste(hi, collapse = "+")
-    })
-  } else {
-    d$Direction <- direction
-  }
-  dir_levels <- c("None", "Basic", "Immune", "Metabolic",
-                  "Basic+Immune", "Basic+Metabolic", "Immune+Metabolic", "Basic+Immune+Metabolic")
-  d$Direction <- factor(d$Direction, levels = dir_levels[dir_levels %in% unique(d$Direction)])
-  d$Gene <- factor(d$Gene, levels = rev(keep))
-  d$Cancer <- factor(d$Cancer, levels = sort(unique(d$Cancer)))
-  cols <- c("None" = "#BDC3C7", "Basic" = "#5DADE2", "Immune" = "#F5B041",
-            "Metabolic" = "#58D68D", "Basic+Immune" = "#AF7AC5", "Basic+Metabolic" = "#45B39D",
-            "Immune+Metabolic" = "#EB984E", "Basic+Immune+Metabolic" = "#C0392B")
-  ggplot2::ggplot(d, ggplot2::aes(axis1 = .data$Gene, axis2 = .data$Cancer,
-                                  axis3 = .data$Direction, fill = .data$Direction)) +
-    ggalluvial::geom_alluvium(alpha = 0.65, width = 1/12) +
-    ggalluvial::geom_stratum(width = 1/12, fill = "grey92", color = "grey60") +
-    ggplot2::scale_fill_manual(values = cols, name = "Direction") +
-    ggplot2::scale_x_discrete(limits = c("Gene", "Cancer", "Direction"), expand = c(0.05, 0.05)) +
-    ggplot2::geom_text(stat = ggalluvial::StatStratum, size = 2.6,
-                       ggplot2::aes(label = ggplot2::after_stat(stratum))) +
-    .theme_ubi(base_size = 11) +
-    ggplot2::labs(title = paste0("Gene -> cancer -> direction (score > ", threshold,
-                                 " ; hypothesis only)")) +
-    ggplot2::theme(legend.position = "right", axis.text.y = ggplot2::element_blank(),
-                   axis.ticks.y = ggplot2::element_blank())
-}
 
 #' UpSet plot for one gene: cancers with high basic / immune / metabolic (单基因 UpSet)
 #'

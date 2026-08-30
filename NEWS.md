@@ -1,3 +1,14 @@
+## 0.5.1 (2026-08-30)
+- Remove plot_alluvial() (gene -> cancer -> direction alluvial diagram) and its
+  README section; ggalluvial dropped from Suggests
+- score_genes() / score_genes_multi() gain a feature_scores argument: a named
+  numeric vector (0-1) that replaces the annotation-tier ubiquitin score with
+  user-supplied feature scores for custom gene sets
+- download_extdata() gains local_dir: install the pre-computed caches from an
+  existing local extdata folder (offline install) and prints a clear hint when
+  the data-branch download returns HTTP 404
+- README: add Example 3 (custom gene set with/without feature scores) and
+  Example 4 (custom single gene)
 ## 0.5.0 (2026-08-30)
 - README fully rewritten in English (SCI style): web portal link
   (http://129.211.3.138/) for quick checks; the R package positioned as the
