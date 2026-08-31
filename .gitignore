@@ -1,0 +1,4 @@
+release_data/
+untar_test/
+zz_*
+*.Rcheck
