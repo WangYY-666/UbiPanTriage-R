@@ -1,3 +1,10 @@
+## 0.5.3 (2026-08-31)
+- Re-split the pan-cancer data into 68 parts of 64 MiB (67.1 MB) each
+  (`inst/extdata_manifest.csv` updated). The previous 46 parts were 100.66 MB
+  each, above GitHub's 100 MB per-file limit, so the `data` branch push was
+  rejected by GitHub (HTTP 500) and `download_extdata()` returned 404 for all
+  users. The new parts reconstruct the byte-identical archive (verified MD5).
+
 ## 0.5.2 (2026-08-31)
 - Publish the complete 46-part pan-cancer data on the GitHub `data` branch so
   `download_extdata()` works for all users (previously the branch was not
