@@ -11,6 +11,7 @@ download_extdata(
   quiet = FALSE,
   local_dir = NULL,
   release = NULL,
+  mirror = NULL,
   timeout_sec = 3600
 )
 }
@@ -33,6 +34,11 @@ downloaded (offline / local install, 本地 extdata 目录，提供时直接复�
 are downloaded from \code{https://github.com/<repo>/releases/download/<release>/}
 using \code{extdata_release_manifest.csv} instead of the \code{data} branch
 (备选发布源：GitHub Release 网页上传的分卷，data 分支不可用时使用)。}
+
+\item{mirror}{optional character vector of base URLs that serve the same
+\code{extdata_parts/} directory; tried automatically after the primary
+source fails (镜像源；主源失败后自动依次尝试，每个元素应能访问
+\code{<mirror>/extdata_parts/<part>})。}
 
 \item{timeout_sec}{per-part download timeout in seconds (单分片下载超时秒数)。}
 }

@@ -68,6 +68,27 @@ check_extdata <- function(data_dir = system.file("extdata", package = "UbiPanTri
   utils::read.csv(f, stringsAsFactors = FALSE)
 }
 
+#' Candidate download URLs for one data part (单个分片的候选下载地址)
+#'
+#' Primary source is the \code{data} branch served by raw.githubusercontent.com;
+#' when it fails, user-supplied \code{mirror} bases and the built-in
+#' mainland-China proxies are tried in order (主源为 raw.githubusercontent.com
+#' 的 data 分支；失败后依次尝试用户镜像与国内常用代理)。
+#' @noRd
+.part_urls <- function(repo, ref, release, part, mirror) {
+  if (!is.null(release))
+    return(paste0("https://github.com/", repo, "/releases/download/",
+                  release, "/", part))
+  primary <- paste0("https://raw.githubusercontent.com/", repo, "/", ref)
+  builtin <- c(
+    paste0("https://gh-proxy.com/https://raw.githubusercontent.com/", repo, "/", ref),
+    paste0("https://ghproxy.net/https://raw.githubusercontent.com/", repo, "/", ref),
+    paste0("https://mirror.ghproxy.com/https://raw.githubusercontent.com/", repo, "/", ref)
+  )
+  bases <- sub("/+$", "", unique(c(primary, mirror, builtin)))
+  paste0(bases[nzchar(bases)], "/extdata_parts/", part)
+}
+
 #' Persistent cache directory for downloaded parts (分片本地缓存目录)
 #'
 #' Falls back to the session temp directory when the user cache dir cannot be
@@ -116,6 +137,10 @@ check_extdata <- function(data_dir = system.file("extdata", package = "UbiPanTri
 #'   are downloaded from \code{https://github.com/<repo>/releases/download/<release>/}
 #'   using \code{extdata_release_manifest.csv} instead of the \code{data} branch
 #'   (备选发布源：GitHub Release 网页上传的分卷，data 分支不可用时使用)。
+#' @param mirror optional character vector of base URLs that serve the same
+#'   \code{extdata_parts/} directory; tried automatically after the primary
+#'   source fails (镜像源；主源失败后自动依次尝试，每个元素应能访问
+#'   \code{<mirror>/extdata_parts/<part>})。
 #' @param quiet suppress progress messages (是否静默)。
 #' @param timeout_sec per-part download timeout in seconds (单分片下载超时秒数)。
 #' @return invisible path to the installed \code{extdata} directory.
@@ -131,6 +156,7 @@ download_extdata <- function(repo = .data_repo(),
                              quiet = FALSE,
                              local_dir = NULL,
                              release = NULL,
+                             mirror = NULL,
                              timeout_sec = 3600) {
   ext_dir <- file.path(dest_dir, "extdata")
   if (length(available_cancers(ext_dir)) >= 33) {
@@ -182,42 +208,47 @@ download_extdata <- function(repo = .data_repo(),
   if (!quiet) message("Downloading ", length(parts), " data parts (",
                       sprintf("%.1f", sum(man$bytes) / 1e9), " GB) from ",
                       src_label, " ...")
+  ok_base <- NULL
   for (i in seq_along(parts)) {
     pf <- file.path(dl, parts[i])
     need <- !file.exists(pf) ||
       !identical(as.character(tools::md5sum(pf)), man$md5[i])
     if (need) {
-      url <- if (is.null(release)) {
-        file.path("https://raw.githubusercontent.com", repo, ref,
-                   "extdata_parts", parts[i])
-      } else {
-        file.path("https://github.com", repo, "releases/download", release, parts[i])
-      }
+      urls <- .part_urls(repo, ref, release, parts[i], mirror)
+      if (!is.null(ok_base))
+        urls <- unique(c(paste0(ok_base, "/extdata_parts/", parts[i]), urls))
       if (!quiet) message(sprintf("  [%d/%d] %s (%.0f MB)", i, length(parts),
                                   parts[i], man$bytes[i] / 1e6))
-      ok <- tryCatch({
-        utils::download.file(url, pf, mode = "wb", quiet = TRUE)
-        TRUE
-      }, error = function(e) {
-        msg <- conditionMessage(e)
-        if (grepl("404", msg, fixed = TRUE))
-          stop("cannot download data part '", parts[i], "' (HTTP 404).\n",
-               "The parts are hosted on the '", ref, "' branch of ", repo,
-               " under extdata_parts/.\n",
-               "Possible causes: (1) the '", ref,
-               "' branch has not been published on GitHub yet;\n",
-               "(2) the network cannot reach raw.githubusercontent.com\n",
-               "    (proxy / firewall / GFW; common in mainland China).\n",
-               "Fix: (1) ask the repository owner to publish the data branch\n",
-               "    (git push -u origin data), then retry;\n",
-               "(2) if the owner published a GitHub Release carrying the data\n",
-               "    parts, retry with download_extdata(release = \"<tag>\", ...);\n",
-               "(3) or install offline from a complete extdata folder with\n",
-               "    download_extdata(local_dir = \"path/to/extdata\").\n",
-               "URL: ", url)
-        stop(e)
-      })
-      if (!isTRUE(ok)) stop("failed to download ", parts[i])
+      ok <- FALSE
+      errs <- character(0)
+      for (u in urls) {
+        if (!quiet && length(urls) > 1) message("    trying: ", u)
+        ok <- tryCatch({
+          utils::download.file(u, pf, mode = "wb", quiet = TRUE)
+          TRUE
+        }, error = function(e) {
+          errs <<- c(errs, conditionMessage(e))
+          FALSE
+        })
+        if (isTRUE(ok)) {
+          ok_base <- sub("/extdata_parts/.*$", "", u)
+          if (!quiet && length(urls) > 1)
+            message("    ok (", sub("/extdata_parts/.*$", "", u), ")")
+          break
+        }
+      }
+      if (!isTRUE(ok))
+        stop("failed to download data part '", parts[i],
+             "' from any source.\n",
+             "Tried ", length(urls), " URL(s):\n  ",
+             paste(urls, collapse = "\n  "), "\n",
+             "Last error: ", tail(errs, 1), "\n",
+             "Fix: (1) use a VPN/proxy or retry later;\n",
+             "(2) pass a mirror that hosts extdata_parts/, e.g.\n",
+             "    download_extdata(mirror = \"https://gh-proxy.com/https://raw.githubusercontent.com/",
+             repo, "/", ref, "\")\n",
+             "(3) or install offline from a complete extdata folder with\n",
+             "    download_extdata(local_dir = \"path/to/extdata\").")
     }
     got <- as.character(tools::md5sum(pf))
     if (!identical(got, man$md5[i]))

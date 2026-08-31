@@ -1,3 +1,11 @@
+## 0.5.4 (2026-09-01)
+- download_extdata() tries mirror sources automatically when the primary
+  raw.githubusercontent.com source fails (e.g. DNS blocking in mainland
+  China): user-supplied `mirror` bases first, then built-in gh-proxy
+  mirrors. Add `download_extdata(mirror = "https://...")` to force one.
+- Failure message now lists every tried URL and the last error, with clear
+  guidance (VPN/proxy, mirror, or local_dir offline install).
+
 ## 0.5.3 (2026-08-31)
 - Re-split the pan-cancer data into 68 parts of 64 MiB (67.1 MB) each
   (`inst/extdata_manifest.csv` updated). The previous 46 parts were 100.66 MB

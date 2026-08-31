@@ -1,7 +1,7 @@
 Package: UbiPanTriage
 Type: Package
 Title: Pan-Cancer Ubiquitin Immunometabolic Scoring for Gene Sets
-Version: 0.5.3
+Version: 0.5.4
 Authors@R: person("Lianxi", "R", email = "wangyy_666@163.com", role = c("aut", "cre"))
 Description: Computes a four-dimensional (Ubiquitin / Basic / Immune / Metabolic) scoring
     system for user-defined gene sets in TCGA cancers. The Basic dimension

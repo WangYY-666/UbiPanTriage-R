@@ -103,9 +103,13 @@ check_extdata()      # should report 33 cancers ready
 >
 > **Network trouble?** The chunks are served from `raw.githubusercontent.com`,
 > which can be slow or unreachable in mainland China. If the download fails
-> with a `404` or timeout, retry later / use a proxy, or download the data
-> once on an accessible machine and install offline with
-> `download_extdata(local_dir = "...")` (see FAQ Q3).
+> with a `404`/DNS error or timeout, `download_extdata()` now automatically
+> retries through mirror proxies (gh-proxy / ghproxy.net / mirror.ghproxy).
+> You can also force a mirror, e.g.
+> `download_extdata(mirror = "https://gh-proxy.com/https://raw.githubusercontent.com/WangYY-666/UbiPanTriage-R/data")`,
+> retry later / use a proxy, or download the data once on an accessible
+> machine and install offline with `download_extdata(local_dir = "...")`
+> (see FAQ Q3).
 >
 > **Offline / local install.** If you already have a complete `extdata` folder
 > (e.g. a copy from another computer or from `data-raw/`), skip the download:
@@ -537,12 +541,15 @@ or pass a writable directory with `download_extdata(dest_dir = "...")`.
 
 **Q3. My download was interrupted or fails with `404 Not Found`?**
 Chunks are MD5-verified; re-running `download_extdata()` skips completed
-chunks. A `404` means the `data` branch parts are not reachable from your
-network (in mainland China, `raw.githubusercontent.com` is frequently blocked
-or slow). Workarounds: (1) retry later or use a VPN/proxy; (2) install from a
-complete local `extdata` folder with `download_extdata(local_dir = "...")`;
-(3) if the maintainer has published the data parts as a GitHub Release,
-download them from that source with `download_extdata(release = "data-v1")`.
+chunks. A `404` or `Could not resolve hostname` means the `data` branch parts
+are not reachable from your network (in mainland China,
+`raw.githubusercontent.com` is frequently DNS-blocked or slow). Workarounds:
+(1) retry — `download_extdata()` now falls back to mirror proxies
+(gh-proxy / ghproxy.net / mirror.ghproxy) automatically; (2) force a mirror,
+e.g. `download_extdata(mirror = "https://gh-proxy.com/https://raw.githubusercontent.com/WangYY-666/UbiPanTriage-R/data")`;
+(3) install from a complete local `extdata` folder with
+`download_extdata(local_dir = "...")`; (4) if the maintainer has published the
+data parts as a GitHub Release, use `download_extdata(release = "data-v1")`.
 
 **Q4. How can I analyze a single cancer without downloading all data?**
 Build a cache structure with your own expression matrix and immune/metabolic
