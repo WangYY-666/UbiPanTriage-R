@@ -19,6 +19,70 @@
   NULL
 }
 
+# Package-level flag: at most one keep-alive timer per R session (包级标记，每会话最多一个保活定时器)
+.ubi_keepalive <- new.env(parent = emptyenv())
+
+#' Refresh the modification time of every file under the session temp dir
+#' (刷新会话临时目录下所有文件的修改时间)
+#'
+#' The modification time of an entry is what age-based \code{/tmp} cleaners
+#' (\code{systemd-tmpfiles}, \code{tmpwatch}, cloud security agents) look at, so
+#' touching the files keeps the whole tree out of the next cleanup pass.
+#' @param d directory to refresh (要刷新的目录，默认会话临时目录)
+#' @return invisible number of entries touched (被刷新的条目数)
+#' @noRd
+.touch_tempdir_files <- function(d = tempdir()) {
+  if (!dir.exists(d)) return(invisible(0L))  # already gone: nothing to keep (目录已丢失)
+  fs <- c(d, list.files(d, recursive = TRUE, all.files = TRUE,
+                        full.names = TRUE, no.. = TRUE))
+  now <- Sys.time()
+  n <- 0L
+  for (f in fs) {
+    if (isTRUE(tryCatch({ Sys.setFileTime(f, now); TRUE },
+                        error = function(e) FALSE, warning = function(w) FALSE)))
+      n <- n + 1L
+  }
+  invisible(n)
+}
+
+#' Keep the R session temp dir alive while the app runs (运行期间保持临时目录存活)
+#'
+#' \code{bslib} compiles the app theme into a sub-directory of
+#' \code{tempdir()} and serves it from there. On long-running servers the OS
+#' cleans \code{/tmp} (systemd-tmpfiles / tmpwatch / cloud security agents drop
+#' entries whose access, modification and status-change times are all older than
+#' ~10 days); once that happens every page request fails with \dQuote{The output
+#' directory '.../bslib-...' does not exist}, because the already-registered CSS
+#' cannot be re-created in the same R process. Refresh the file times
+#' periodically and the tree never becomes old enough to be collected. The
+#' durable fix on a server is to point \code{TMPDIR} at a directory outside
+#' \code{/tmp} (see \code{deploy/Dockerfile}); this timer is the in-process
+#' safety net for hosts where that is not possible.
+#'
+#' The timer is armed once per R session and re-arms itself, so it keeps
+#' touching the temp dir even when no browser is connected.
+#'
+#' Do NOT call this from the app's global code: \code{shiny::testServer()}
+#' drains the \code{later} loop while a session is simulated, and a pending
+#' timer that is hours away makes it wait for the whole delay (i.e. the test
+#' suite would hang). It is called from \code{run_shiny_app()} only, which the
+#' tests never run.
+#' @param every_hours how often to refresh the file times (刷新间隔，小时)
+#' @return invisible TRUE if a timer was started, FALSE otherwise (是否启动)
+#' @noRd
+.start_tempdir_keepalive <- function(every_hours = 6) {
+  if (isTRUE(.ubi_keepalive$running)) return(invisible(FALSE))
+  if (!requireNamespace("later", quietly = TRUE)) return(invisible(FALSE))
+  touch_once <- function() {
+    .touch_tempdir_files()
+    later::later(touch_once, delay = every_hours * 3600)
+    invisible(NULL)
+  }
+  .ubi_keepalive$running <- TRUE
+  later::later(touch_once, delay = every_hours * 3600)
+  invisible(TRUE)
+}
+
 #' Launch the Shiny web interface (启动 Shiny 交互界面)
 #'
 #' Starts the interactive web app with three pages: (1) ubiquitin gene-set
@@ -50,6 +114,9 @@ run_shiny_app <- function(data_dir = system.file("extdata", package = "UbiPanTri
   options(ubi.data_dir = data_dir)
   options(sass.cache = FALSE)          # avoid sass cache permission issues (避免 sass 缓存权限问题)
   options(sass.cache_dir = tempdir())  # compile bootstrap CSS under the temp dir (编译目录放到临时目录)
+  # Keep bslib's temp CSS alive on long-running servers. Arm the timer here and
+  # nowhere else (仅在启动真实服务时启用：放在 app.R 全局代码里会让 testServer() 等待定时器)
+  .start_tempdir_keepalive()
   dots <- list(...)
   if (is.null(dots$launch.browser)) {
     # open the browser when possible, but never crash the app if it fails (浏览器打开失败不崩溃)

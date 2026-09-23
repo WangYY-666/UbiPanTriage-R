@@ -124,6 +124,16 @@ check_extdata()      # should report 33 cancers ready
 run_shiny_app()      # opens the browser; falls back to a random port if busy
 ```
 
+> **Self-hosting the app?** `bslib` compiles the app theme into a sub-directory
+> of `tempdir()` and serves it from there, so on Linux the OS eventually deletes
+> it (`/tmp` entries untouched for ~10 days, via `systemd-tmpfiles`, `tmpwatch`
+> or cloud security agents) and every page then fails with `The output directory
+> '/tmp/RtmpXXXX/bslib-XXXX' does not exist`. Since 0.5.5 `run_shiny_app()`
+> refreshes the session temp files every 6 hours to stay out of that cleanup; for a
+> permanent deployment, additionally point `TMPDIR` outside `/tmp`
+> (`mkdir -p /srv/ubi/tmp` then `export TMPDIR=/srv/ubi/tmp`) and restart the
+> process once a day.
+
 ---
 
 ## Quick start

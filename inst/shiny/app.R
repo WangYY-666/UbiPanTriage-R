@@ -27,6 +27,15 @@ suppressPackageStartupMessages({
   library(UbiPanTriage)
 })
 
+# Long-running servers: bslib compiles the theme CSS into a sub-directory of
+# tempdir() and serves it from there, so an OS /tmp cleanup (systemd-tmpfiles /
+# tmpwatch / cloud security agents, ~10 days) would break every page with
+# "The output directory '/tmp/RtmpXXXX/bslib-XXXX' does not exist".
+# The keep-alive timer that prevents this is armed by run_shiny_app(); it must
+# NOT be started here: a pending `later` timer that is hours away makes
+# shiny::testServer(), which loads this very file, wait for the whole delay.
+# The durable fix is TMPDIR pointing outside /tmp (see deploy/Dockerfile).
+
 # ----------------------------------------------------------------------------
 # data (pre-computed pan-cancer scores v0.3+)
 # ----------------------------------------------------------------------------

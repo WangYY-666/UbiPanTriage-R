@@ -1,3 +1,16 @@
+## 0.5.5 (2026-09-24)
+- Fix "The output directory '/tmp/RtmpXXXX/bslib-XXXX' does not exist" on
+  long-running web servers: bslib compiles the theme CSS into a sub-directory
+  of tempdir() and serves it from there, and the OS eventually deletes
+  stale /tmp entries (systemd-tmpfiles / tmpwatch / cloud security agents),
+  after which every page request fails. run_shiny_app() now refreshes the
+  modification time of the session temp files every 6 hours (`later`), so
+  age-based /tmp cleanup no longer picks them up. Applies to both the Shiny
+  app shipped in inst/shiny and run_shiny_app().
+- The bundled deployment guide/Dockerfile now set TMPDIR=/app/tmp (a path
+  outside /tmp that nothing cleans) and install a daily container restart,
+  so a self-hosted server stays healthy without manual maintenance.
+
 ## 0.5.4 (2026-09-01)
 - download_extdata() tries mirror sources automatically when the primary
   raw.githubusercontent.com source fails (e.g. DNS blocking in mainland
