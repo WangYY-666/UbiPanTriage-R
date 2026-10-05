@@ -1,3 +1,11 @@
+## 0.5.8 (2026-10-05)
+- README: serve the example figures through the jsDelivr CDN
+  (https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/...)
+  instead of repo-relative paths. GitHub renders relative README images from
+  raw.githubusercontent.com, which is frequently unreachable in mainland China,
+  so the pictures failed to load (broken-image icons); jsDelivr is reachable
+  there and GitHub proxies it through camo. No package code changed.
+
 ## 0.5.7 (2026-10-05)
 - Plots: the shared theme now draws the x / y axis lines and tick marks (the
   light grid background is kept), so every figure clearly shows its axes like a

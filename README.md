@@ -204,7 +204,7 @@ long   <- res$scores_long
 plot_3d_bubble(summ, type_col = "ubi_type_full")
 ```
 
-![Gene-set 3D bubble](man/figures/fig_geneset_bubble.png)
+![Gene-set 3D bubble](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_geneset_bubble.png)
 
 ```r
 # Faceted heatmap: Basic / Immune / Metabolic scores across 5 cancers
@@ -215,14 +215,14 @@ facet <- do.call(rbind, lapply(names(dims3), function(nm)
 plot_facet_heatmap(facet)
 ```
 
-![Gene-set facet heatmap](man/figures/fig_geneset_heatmap.png)
+![Gene-set facet heatmap](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_geneset_heatmap.png)
 
 ```r
 # Pan-cancer ranking of the combined score
 plot_ranking_grid(summ, top_n = nrow(summ))
 ```
 
-![Gene-set pan-cancer ranking](man/figures/fig_geneset_ranking.png)
+![Gene-set pan-cancer ranking](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_geneset_ranking.png)
 
 ```r
 # Four-dimension dot plot (gene x dimension)
@@ -232,7 +232,7 @@ d4 <- do.call(rbind, lapply(names(dims3), function(nm)
 plot_4d_dot(d4)
 ```
 
-![Gene-set 4D dot plot](man/figures/fig_geneset_4d.png)
+![Gene-set 4D dot plot](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_geneset_4d.png)
 
 Pan-cancer summary for the example gene set (full table:
 [`man/figures/example_summary.csv`](man/figures/example_summary.csv)):
@@ -266,49 +266,49 @@ vals <- c(Ubiquitin = mean(long$Ubi_Score[long$Gene == g], na.rm = TRUE),
 plot_radar_fmsb(vals, gene = g)
 ```
 
-![MUL1 radar chart](man/figures/fig_mul1_radar.png)
+![MUL1 radar chart](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_mul1_radar.png)
 
 ```r
 # 2) immune infiltration correlation heatmap (TIMER, 5 cancers)
 plot_cor_heatmap(imm, title = paste0(g, " - immune infiltration correlation (TIMER)"))
 ```
 
-![MUL1 immune correlation](man/figures/fig_mul1_immune.png)
+![MUL1 immune correlation](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_mul1_immune.png)
 
 ```r
 # 3) metabolic pathway correlation heatmap (7 GSVA pathways)
 plot_cor_heatmap(meta, title = paste0(g, " - metabolic pathway correlation"))
 ```
 
-![MUL1 metabolic correlation](man/figures/fig_mul1_metabolic.png)
+![MUL1 metabolic correlation](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_mul1_metabolic.png)
 
 ```r
 # 4) pan-cancer expression (TPM, tumor vs. normal)
 plot_expr_pancancer(caches, g, "tpm", show_normal = TRUE)
 ```
 
-![MUL1 pan-cancer expression](man/figures/fig_mul1_expr.png)
+![MUL1 pan-cancer expression](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_mul1_expr.png)
 
 ```r
 # 5) tumor vs. normal expression in LUAD
 plot_expr_box(luad, g)
 ```
 
-![MUL1 LUAD boxplot](man/figures/fig_mul1_box.png)
+![MUL1 LUAD boxplot](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_mul1_box.png)
 
 ```r
 # 6) diagnostic ROC curve (LUAD)
 plot_roc_diag(luad, g)
 ```
 
-![MUL1 ROC curve](man/figures/fig_mul1_roc.png)
+![MUL1 ROC curve](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_mul1_roc.png)
 
 ```r
 # 7) KM survival by high/low expression (LUAD)
 plot_km(luad, g)
 ```
 
-![MUL1 KM survival](man/figures/fig_mul1_km.png)
+![MUL1 KM survival](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_mul1_km.png)
 
 ```r
 # 8) UpSet: cancers with top Basic / Immune / Metabolic scores (threshold 0.5)
@@ -317,7 +317,7 @@ plot_upset_3dim(long[long$Gene == g, c("Cancer", "Basic_Score",
                 threshold = 0.5)
 ```
 
-![MUL1 UpSet](man/figures/fig_mul1_upset.png)
+![MUL1 UpSet](https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/fig_mul1_upset.png)
 
 ```r
 # 9) automatic bilingual inference (English / Chinese)
