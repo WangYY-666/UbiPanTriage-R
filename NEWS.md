@@ -1,3 +1,8 @@
+## 0.5.10 (2026-10-06)
+- README: append a version query (`?v=20261006`) to the jsDelivr figure URLs so
+  GitHub's camo image proxy and client browsers re-fetch the pictures instead of
+  reusing a cached (possibly failed) copy. Documentation only.
+
 ## 0.5.9 (2026-10-05)
 - Fix the Shiny app refusing to start on a correctly built server image with
   "No pre-computed cancer caches found ... extdata". The deployment image
