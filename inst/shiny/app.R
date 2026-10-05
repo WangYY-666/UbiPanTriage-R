@@ -211,6 +211,7 @@ L <- list(
     p1_topn = "Top N genes", p1_thr = "High-score threshold",
     thr_median = "Median (per cancer)", thr_fixed = "Fixed value",
     p1_table = "Gene summary (aggregated across selected cancers)",
+    p1_detail_note = "Download details: for every gene x cancer, the basic sub-items (expression / diff / survival / ROC, with HR and AUC), every immune cell correlation of the selected method, the 7 metabolic pathways, the top correlated immune cell / pathway, and the within-cancer ranks.",
     p1_contrib_note = "High: number / list of selected cancers where the gene ranks above the cancer-specific median in that dimension.",
     p1_rank = "Ranking of input genes by dimension (bar charts)",
     p1_4d = "Score bubble plot (x: immune, y: metabolic, size: basic)", p1_facet = "Score heatmap by dimension",
@@ -315,6 +316,7 @@ L <- list(
     p1_topn = "前 N 个基因", p1_thr = "高分阈值",
     thr_median = "中位数（按癌种）", thr_fixed = "固定数值",
     p1_table = "基因汇总（所选癌种汇总）",
+    p1_detail_note = "下载细分详情：按「基因 × 癌种」列出基础四子项（表达/差异/生存/ROC，含 HR、AUC）、所选方法下每种免疫细胞的相关性、7 条代谢通路、相关性最高的免疫细胞/代谢通路，以及各维度在该癌种内的排名。",
     p1_contrib_note = "高分癌种：所选癌种中，该基因在某维度得分高于该癌种全部泛素基因中位数的癌种数量与列表。",
     p1_rank = "输入基因各维度评分排序（条形图）",
     p1_4d = "评分气泡图（横轴：免疫、纵轴：代谢、气泡大小：基础）", p1_facet = "各维度评分热图",
@@ -727,11 +729,12 @@ tr <- function(key, lng) L[[lng]][[key]] %||% key
 # cell correlation of the selected method, the 7 metabolic pathways, the top
 # correlated cell / pathway and the ranks (a gene-set table also carries the
 # high-score-cancer lists). Ordered for readability, numeric columns rounded.
-.detail_table <- function(long, method, dims) {
+.detail_table <- function(long, method, dims, extra_cols = character()) {
   if (is.null(long) || nrow(long) == 0) return(long)
   tt <- .top_traits(long, method)
   out <- data.frame(Gene = long$Gene, Cancer = long$Cancer, stringsAsFactors = FALSE)
   if ("Ubi_Type_Full" %in% colnames(long)) out$Ubi_Type_Full <- long$Ubi_Type_Full
+  for (cl in extra_cols) if (cl %in% colnames(long)) out[[cl]] <- long[[cl]]
   add <- function(col, name = col)
     if (col %in% colnames(long)) out[[name]] <<- long[[col]]
   if ("ubiquitin" %in% dims) add("Ubi_Score")
@@ -858,6 +861,7 @@ p1_ui <- function(lng, sel) {
            downloadButton("p1_download", tr("download", lng)),
            downloadButton("p1_detail_csv", tr("download_detail_csv", lng)),
            downloadButton("p1_detail_dl", tr("download_detail", lng)),
+           p(tr("p1_detail_note", lng), class = "text-muted small"),
            p(paste0(tr("p1_missing_cancers", lng), ": ",
                     paste(cancers_incomplete, collapse = ", "), ". ", tr("p1_foot", lng)),
              class = "text-muted small"),
@@ -1634,13 +1638,15 @@ server <- function(input, output, session) {
     filename = function() paste0("ubi_gene_detail_", Sys.Date(), ".csv"),
     content = function(con) {
       r <- p1_res(); if (is.null(r)) return(NULL)
-      write.csv(.detail_table(r$detail, r$method, r$dims), con, row.names = FALSE)
+      write.csv(.detail_table(r$detail, r$method, r$dims, extra_cols = "direction"),
+                con, row.names = FALSE)
     })
   output$p1_detail_dl <- downloadHandler(
     filename = function() paste0("ubi_gene_detail_", Sys.Date(), ".xlsx"),
     content = function(con) {
       r <- p1_res(); if (is.null(r)) return(NULL)
-      .write_detail_xlsx(con, .detail_table(r$detail, r$method, r$dims), .fmt_tbl(r$summ))
+      .write_detail_xlsx(con, .detail_table(r$detail, r$method, r$dims, extra_cols = "direction"),
+                         .fmt_tbl(r$summ))
     })
 
   # ==========================================================================

@@ -1,3 +1,11 @@
+## 0.5.11 (2026-10-06)
+- Web page 1 (ubiquitin gene-set ranking): make the detail download explicit.
+  A short note under the buttons now explains what the detail file contains
+  (basic sub-items with HR / AUC, every immune cell of the selected method, the
+  7 metabolic pathways, the top correlated cell / pathway, and within-cancer
+  ranks), and the detail table also carries the survival direction column.
+  Pages 2-4 are unchanged.
+
 ## 0.5.10 (2026-10-06)
 - README: append a version query (`?v=20261006`) to the jsDelivr figure URLs so
   GitHub's camo image proxy and client browsers re-fetch the pictures instead of

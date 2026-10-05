@@ -173,6 +173,9 @@ test_that("gene-set detail table carries every sub-score and top traits", {
                       "Combined_Score") %in% colnames(det)))
     expect_gt(nrow(det), 0L)
     expect_true(any(grepl("Basic_high_cancers", colnames(det))))
+    # page-1 detail carries the extra survival-direction column
+    det2 <- .detail_table(r$detail, r$method, r$dims, extra_cols = "direction")
+    expect_true("direction" %in% colnames(det2))
   })
 })
 
