@@ -83,6 +83,25 @@
   invisible(TRUE)
 }
 
+#' Does the directory hold the web lookup library? (是否存在网页用的 per-gene 文库)
+#'
+#' The Shiny app reads the pre-computed per-gene library \code{lookup/}
+#' (\code{pcs_meta.rds}, \code{ubi_univ.rds}, \code{genes_index.rds}, ...),
+#' NOT the legacy per-cancer \code{<CANCER>_cache.rds} files. Installation
+#' deliberately drops those caches to keep the image small, so the launch check
+#' must test the lookup library (otherwise the app refuses to start on a
+#' correctly built image).
+#' 网页读取的是 \code{lookup/} 文库而非旧的按癌种缓存；镜像会删掉旧缓存以缩小体积，
+#' 因此启动自检必须检查 \code{lookup/}。
+#' @param data_dir candidate data directory (数据目录)
+#' @return TRUE when the lookup library is present (文库是否齐全)
+#' @noRd
+.has_web_data <- function(data_dir) {
+  ld <- file.path(data_dir, "lookup")
+  dir.exists(ld) && all(file.exists(file.path(ld, c("pcs_meta.rds", "ubi_univ.rds",
+                                                   "genes_index.rds"))))
+}
+
 #' Launch the Shiny web interface (启动 Shiny 交互界面)
 #'
 #' Starts the interactive web app with three pages: (1) ubiquitin gene-set
@@ -107,8 +126,8 @@ run_shiny_app <- function(data_dir = system.file("extdata", package = "UbiPanTri
   app_dir <- system.file("shiny", package = "UbiPanTriage")
   if (!nzchar(app_dir) || !dir.exists(app_dir))
     stop("shiny app not found in the installed package")
-  if (length(available_cancers(data_dir)) == 0)
-    stop("No pre-computed cancer caches found under ", data_dir, ". ",
+  if (!.has_web_data(data_dir) && length(available_cancers(data_dir)) == 0)
+    stop("Web data not found under ", data_dir, ". ",
          "Run UbiPanTriage::download_extdata() once to install the pan-cancer ",
          "data (~4.2 GB), then launch the app again.")
   options(ubi.data_dir = data_dir)

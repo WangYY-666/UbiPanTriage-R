@@ -1,3 +1,11 @@
+## 0.5.9 (2026-10-05)
+- Fix the Shiny app refusing to start on a correctly built server image with
+  "No pre-computed cancer caches found ... extdata". The deployment image
+  deliberately deletes the legacy per-cancer `<CANCER>_cache.rds` files (the web
+  app reads the per-gene `lookup/` library instead, which keeps the image ~3.8
+  GB smaller), but `run_shiny_app()` still required those caches. The launch
+  check now accepts the `lookup/` library, or the legacy caches.
+
 ## 0.5.8 (2026-10-05)
 - README: serve the example figures through the jsDelivr CDN
   (https://cdn.jsdelivr.net/gh/WangYY-666/UbiPanTriage-R@main/man/figures/...)

@@ -82,3 +82,11 @@ test_that("multi-cancer scoring works", {
   expect_true(all(c("Gene", "Cancer", "Ubi_Score", "Combined_Score") %in% colnames(rm$scores_long)))
   expect_true("Pan_Rank" %in% colnames(rm$summary))
 })
+
+test_that("web launch data check accepts the lookup library", {
+  data_dir <- system.file("extdata", package = "UbiPanTriage")
+  skip_if_not(file.exists(file.path(data_dir, "lookup", "ubi_univ.rds")),
+              "lookup library not bundled")
+  expect_true(UbiPanTriage:::.has_web_data(data_dir))
+  expect_false(UbiPanTriage:::.has_web_data(tempdir()))
+})
