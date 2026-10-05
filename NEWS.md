@@ -1,3 +1,10 @@
+## 0.5.12 (2026-10-06)
+- Web page 1 (ubiquitin gene-set ranking): move the three download buttons above
+  the result table so they stay visible after a run (a wide/large table could
+  push them out of view and overlap the summary text), and drop the DataTables
+  built-in Copy / CSV / Excel toolbar buttons (that CSV only exports the
+  on-screen summary and was mistaken for the detail export). Pages 2-4 unchanged.
+
 ## 0.5.11 (2026-10-06)
 - Web page 1 (ubiquitin gene-set ranking): make the detail download explicit.
   A short note under the buttons now explains what the detail file contains

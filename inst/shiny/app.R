@@ -856,16 +856,17 @@ p1_ui <- function(lng, sel) {
     column(9,
       htmlOutput("p1_notice"),
       card(card_header(tr("p1_table", lng)),
-           DTOutput("p1_table"),
-           br(),
-           downloadButton("p1_download", tr("download", lng)),
-           downloadButton("p1_detail_csv", tr("download_detail_csv", lng)),
-           downloadButton("p1_detail_dl", tr("download_detail", lng)),
+           div(style = "margin-bottom:10px;",
+               downloadButton("p1_download", tr("download", lng)),
+               downloadButton("p1_detail_csv", tr("download_detail_csv", lng)),
+               downloadButton("p1_detail_dl", tr("download_detail", lng))),
            p(tr("p1_detail_note", lng), class = "text-muted small"),
            p(paste0(tr("p1_missing_cancers", lng), ": ",
                     paste(cancers_incomplete, collapse = ", "), ". ", tr("p1_foot", lng)),
              class = "text-muted small"),
-           htmlOutput("p1_topnote")),
+           htmlOutput("p1_topnote"),
+           br(),
+           DTOutput("p1_table")),
       card(card_header(tr("p1_4d", lng), .plot_dl("p1_4d")),
            div(class = "plot-wrap", plotOutput("p1_4d", height = "640px"))),
       card(card_header(tr("p1_facet", lng), .plot_dl("p1_facet")),
@@ -1589,9 +1590,8 @@ server <- function(input, output, session) {
     if ("metabolic" %in% sel) cn <- c(cn, tr("c_meta", lng))
     cn <- c(cn, tr("c_comb", lng), tr("c_rank", lng))
     colnames(tab) <- cn
-    datatable(tab, rownames = FALSE, extensions = "Buttons",
-              options = list(pageLength = 15, scrollX = TRUE, dom = "Bfrtip",
-                             buttons = c("copy", "csv", "excel")))
+    datatable(tab, rownames = FALSE,
+              options = list(pageLength = 15, scrollX = TRUE, dom = "frtip"))
   })
 
   output$p1_4d <- renderPlot({ p <- {
