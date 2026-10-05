@@ -155,3 +155,68 @@ test_that("page 4 custom single-gene query renders all outputs", {
     expect_true(nzchar(output$p4_infer_txt))
   })
 })
+
+# --- detail export: sub-scores + top correlated traits (pages 1-4) -----------
+test_that("gene-set detail table carries every sub-score and top traits", {
+  testServer(server, {
+    do.call(session$setInputs, c(list(
+      p1_genes = c("MDM2", "TRIM44"), p1_cancers = c("LUAD", "BRCA"),
+      p1_dims = c("ubiquitin", "basic", "immune", "metabolic"),
+      p1_imm = "timer", p1_agg = "equal", p1_wmode = "equal"), as.list(sub_weights("p1"))))
+    session$setInputs(p1_run = 1); session$flushReact()
+    r <- p1_res(); expect_false(is.null(r))
+    det <- .detail_table(r$detail, r$method, r$dims)
+    expect_true(all(c("Gene", "Cancer", "Ubi_Score", "Basic_Score", "Expression_Score",
+                      "Diff_Score", "Survive_Score", "ROC_Score", "Immune_Score",
+                      "Top_immune_cell", "Top_immune_cor", "ImmCor_B_cell",
+                      "Metabolic_Score", "Top_metabolic_trait", "MetaCor_Lipid",
+                      "Combined_Score") %in% colnames(det)))
+    expect_gt(nrow(det), 0L)
+    expect_true(any(grepl("Basic_high_cancers", colnames(det))))
+  })
+})
+
+test_that("single-gene summary/download carries the two top-trait columns", {
+  testServer(server, {
+    session$setInputs(p2_gene = "MDM2", p2_cancers = c("LUAD", "BRCA"),
+                      p2_imm = "timer",
+                      p2_dims = c("ubiquitin", "basic", "immune", "metabolic"),
+                      p2_plots = c("radar"), p2_expr_unit = "tpm",
+                      p2_expr_normal = "both", p2_thr_mode = "median", p2_thr = 0.5)
+    session$setInputs(p2_run = 1); session$flushReact()
+    r <- p2_res(); expect_false(is.null(r))
+    s <- .scores_summary_gene(r$d, r$method, include_ubi = TRUE)
+    expect_true(all(c("Cancer", "Immune_Score", "Top_immune_cell",
+                      "Metabolic_Score", "Top_metabolic_trait") %in% colnames(s)))
+    expect_equal(nrow(s), 2L)
+    det <- .detail_table(r$d, r$method, r$dims)
+    expect_true(all(c("Top_immune_cell", "Top_metabolic_trait",
+                      "MetaCor_Amino_acid") %in% colnames(det)))
+  })
+})
+
+test_that("custom pages expose the same detail / top-trait columns", {
+  testServer(server, {
+    do.call(session$setInputs, c(list(
+      p3_mode = "paste", p3_paste = "CDK1\nAURKA", p3_has_score = FALSE,
+      p3_cancers = c("LUAD", "BRCA"), p3_dims = c("basic", "immune", "metabolic"),
+      p3_imm = "timer", p3_agg = "equal", p3_wmode = "equal"), as.list(sub_weights("p3"))))
+    session$setInputs(p3_run = 1); session$flushReact()
+    r3 <- p3_res(); expect_false(is.null(r3))
+    det3 <- .detail_table(r3$detail, r3$method, r3$dims)
+    expect_true(all(c("Gene", "Cancer", "Top_immune_cell", "Top_metabolic_trait",
+                      "ImmCor_B_cell", "MetaCor_Lipid") %in% colnames(det3)))
+
+    session$setInputs(p4_gene = "CDK1", p4_cancers = c("LUAD", "BRCA"),
+                      p4_imm = "timer", p4_feature = NA_real_,
+                      p4_dims = c("basic", "immune", "metabolic"),
+                      p4_plots = c("radar"), p4_expr_unit = "tpm",
+                      p4_expr_normal = "both", p4_thr_mode = "median", p4_thr = 0.5)
+    session$setInputs(p4_run = 1); session$flushReact()
+    r4 <- p4_res(); expect_false(is.null(r4))
+    s4 <- .scores_summary_gene(r4$d, r4$method, include_ubi = FALSE)
+    expect_true(all(c("Top_immune_cell", "Top_metabolic_trait") %in% colnames(s4)))
+    det4 <- .detail_table(r4$d, r4$method, r4$dims)
+    expect_true(all(c("Top_immune_cell", "Top_metabolic_trait") %in% colnames(det4)))
+  })
+})

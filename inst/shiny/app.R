@@ -192,8 +192,9 @@ L <- list(
     app_title = "UbiPanTriage - Pan-cancer ubiquitin immunometabolic scoring",
     tab1 = "1. Ubiquitin gene-set ranking", tab2 = "2. Ubiquitin single gene",
     tab3 = "3. Custom gene set", tab4 = "4. Custom single gene", tab5 = "5. Usage guide",
-    more = "More settings", run = "Run scoring", download = "Download CSV",
-    download_detail = "Download details (xlsx)", example_dl = "Download example gene file (CSV)",
+    more = "More settings", run = "Run scoring", download = "Download summary (CSV)",
+    download_detail = "Download details (Excel)", download_detail_csv = "Download details (CSV)",
+    example_dl = "Download example gene file (CSV)",
     reset = "Reset to equal", rel_note = "Sub-item weights are relative (0 - 1, one decimal); they are normalized internally. Set 0 to exclude an item.",
     w_note = "Each dimension weight: 0.1 - 1.0, one decimal place, sum = 1.",
     p1_intro = "Score and rank ubiquitin genes across selected cancers. Four dimensions (ubiquitin / basic / immune / metabolic) are combined with user-adjustable weights; a usage explanation is on page 5.",
@@ -223,6 +224,7 @@ L <- list(
     p1_topnote = "You selected %d genes; only the top %d are shown in the plots.",
     c_gene = "Gene", c_type = "Ubiquitin type", c_type_full = "Ubiquitin class (full name)",
     c_ubi = "Ubi", c_basic = "Basic", c_immune = "Immune", c_meta = "Metabolic",
+    c_top_imm = "Top immune cell", c_top_meta = "Top metabolic pathway",
     c_comb = "Combined", c_rank = "Rank", c_pct = "Pct (vs all)", c_nmiss = "n*",
     c_contrib = "High-score cancers", c_missing = "Missing",
     dim_ubiquitin = "Ubiquitin", dim_basic = "Basic", dim_immune = "Immune", dim_metabolic = "Metabolic",
@@ -285,7 +287,7 @@ L <- list(
     p5_web_r = "Web app vs R package",
     p5_web_r_txt = "The web app is a fast, pre-computed pan-cancer lookup: every gene expressed in TCGA (about 20,000 per cancer) is scored once offline, and queries read the cached results so pages 1-4 load in seconds. All pages share the same pre-computed scores, so numbers are consistent across pages. If a gene symbol is not recognized, download the full gene list (39,278 genes) from pages 3-4 to check the exact symbol (case and version suffixes like .1 are matched automatically). To keep the server responsive, fine-grained controls (sub-item weights, per-cell / per-pathway weights, custom thresholds, re-computation on new data, offline batch analysis) are provided by the companion R package UbiPanTriage. Use the web app for quick exploration; use the R package when you need full control or want to re-score with your own parameters.",
     p5_faq = "FAQ",
-    p5_faq_txt = "Q: Why is the immune method default TIMER? A: TIMER is the most widely cited deconvolution method in TCGA studies; the five methods are internally equally weighted, and you can switch the method in More settings. Q: What does a score of 1.000 / 0.123 mean? A: For basic / immune / metabolic, the score is the gene's percentile rank within the scored gene universe of that cancer (best = 1); the ubiquitin score is the tier score. Q: Why is my gene's basic score starred (*)? A: That cancer lacks normal tissue / DEG / survival data, so the basic score was re-normalized over the available sub-items. Q: Can I use non-ubiquitin genes? A: Yes - use pages 3 and 4, which run the same scoring without the ubiquitin dimension. Q: Where are the sub-scores (expression / diff / survival / ROC, immune cells, pathways) and ranks? A: They are all included in the Download details (xlsx) file.",
+    p5_faq_txt = "Q: Why is the immune method default TIMER? A: TIMER is the most widely cited deconvolution method in TCGA studies; the five methods are internally equally weighted, and you can switch the method in More settings. Q: What does a score of 1.000 / 0.123 mean? A: For basic / immune / metabolic, the score is the gene's percentile rank within the scored gene universe of that cancer (best = 1); the ubiquitin score is the tier score. Q: Why is my gene's basic score starred (*)? A: That cancer lacks normal tissue / DEG / survival data, so the basic score was re-normalized over the available sub-items. Q: Can I use non-ubiquitin genes? A: Yes - use pages 3 and 4, which run the same scoring without the ubiquitin dimension. Q: Where are the sub-scores (expression / diff / survival / ROC, immune cells, pathways) and ranks? A: They are all included in the Download details (CSV / Excel) files. The single-gene score tables additionally list the most correlated immune cell type and metabolic pathway as columns.",
     p5_ack = "Acknowledgements",
     p5_ack_txt = "We thank The Cancer Genome Atlas (TCGA) for the public multi-omics data, and the IUCCD2.0 database for the curated ubiquitin gene annotations used in this project. We also thank the open-source R community and the developers of the R packages that this project depends on.",
     p5_note = "Everything shown here is a computational hypothesis; experimental validation is required before drawing conclusions."
@@ -294,8 +296,9 @@ L <- list(
     app_title = "UbiPanTriage - 泛癌泛素免疫代谢评分系统",
     tab1 = "1. 泛素基因集评分排序", tab2 = "2. 泛素单基因查询",
     tab3 = "3. 自定义基因集", tab4 = "4. 自定义单基因", tab5 = "5. 使用说明",
-    more = "更多设置", run = "开始评分", download = "下载 CSV",
-    download_detail = "下载评分详情 (xlsx)", example_dl = "下载示例基因文件 (CSV)",
+    more = "更多设置", run = "开始评分", download = "下载汇总 (CSV)",
+    download_detail = "下载细分详情 (Excel)", download_detail_csv = "下载细分详情 (CSV)",
+    example_dl = "下载示例基因文件 (CSV)",
     reset = "恢复等权", rel_note = "细分权重为相对权重（0-1，保留一位小数），内部自动归一化；设为 0 表示剔除该项目。",
     w_note = "各维度权重需在 0.1-1.0 之间、保留一位小数，且总和为 1。",
     p1_intro = "对所选泛素基因在所选癌种中进行评分与排序。四个维度（泛素 / 基础 / 免疫 / 代谢）权重均可调整；评分标准说明见第 5 页。",
@@ -325,6 +328,7 @@ L <- list(
     p1_topnote = "共选择了 %d 个基因，绘图仅展示评分前 %d 的基因。",
     c_gene = "基因", c_type = "泛素类型", c_type_full = "泛素类别（全称）",
     c_ubi = "泛素", c_basic = "基础", c_immune = "免疫", c_meta = "代谢",
+    c_top_imm = "相关性最高免疫细胞", c_top_meta = "相关性最高代谢通路",
     c_comb = "综合", c_rank = "排名", c_pct = "百分位（vs 全部）", c_nmiss = "n*",
     c_contrib = "高分癌种", c_missing = "缺失",
     dim_ubiquitin = "泛素", dim_basic = "基础", dim_immune = "免疫", dim_metabolic = "代谢",
@@ -387,7 +391,7 @@ L <- list(
     p5_web_r = "网页版与 R 包的分工",
     p5_web_r_txt = "网页版提供快速、预计算的泛癌查询：TCGA 中每个表达的基因（每癌种约 2 万个）都会离线预先完成全部评分，查询时直接读取缓存结果，因此页面 1-4 数秒内即可加载。页面 1-4 使用同一套预计算评分，数值口径完全一致。若输入的基因提示查不到，可在页面 3/4 下载全部基因表（39278 个）核对符号（大小写、.1 等版本后缀会自动匹配）。为保证服务器响应速度，精细控制（细分权重、细胞 / 通路权重、自定义阈值、用新数据重新计算、离线批量分析）由配套 R 包 UbiPanTriage 提供（install.packages 或 remotes::install_local 安装）。日常快速探索请使用网页版；需要完整控制或按自己的参数重新评分时，请使用 R 包。",
     p5_faq = "常见问题",
-    p5_faq_txt = "问：为什么默认用 TIMER？答：TIMER 是 TCGA 研究中最常引用的反卷积方法；五种方法内部等权，可在更多设置中切换。问：评分 1.000 / 0.123 代表什么？答：基础 / 免疫 / 代谢维度是该基因在该癌种内、所在基因集中的百分位（最优为 1）；泛素维度为功能层级分。问：为什么我的基因基础分带 * 号？答：该癌种缺少正常组织 / 差异 / 生存数据，基础分已在可用细分项目上重归一化。问：可以用非泛素基因吗？答：可以，使用第 3、4 页即可，评分流程相同，只是不含泛素维度。问：细分评分在哪里看？答：基础各子项、免疫细胞、代谢途径的细分及各维度排名均在“下载详情 (xlsx)”中给出。",
+    p5_faq_txt = "问：为什么默认用 TIMER？答：TIMER 是 TCGA 研究中最常引用的反卷积方法；五种方法内部等权，可在更多设置中切换。问：评分 1.000 / 0.123 代表什么？答：基础 / 免疫 / 代谢维度是该基因在该癌种内、所在基因集中的百分位（最优为 1）；泛素维度为功能层级分。问：为什么我的基因基础分带 * 号？答：该癌种缺少正常组织 / 差异 / 生存数据，基础分已在可用细分项目上重归一化。问：可以用非泛素基因吗？答：可以，使用第 3、4 页即可，评分流程相同，只是不含泛素维度。问：细分评分在哪里看？答：基础各子项、免疫细胞、代谢途径的细分及各维度排名均在“下载细分详情 (CSV / Excel)”中给出；单基因评分表还会直接列出相关性最高的免疫细胞与代谢通路两列。",
     p5_ack = "致谢",
     p5_ack_txt = "感谢癌症基因组图谱（TCGA）提供的公开多组学数据，以及 IUCCD2.0 泛素基因数据库提供的泛素基因注释。同时感谢开源 R 社区及本项目所依赖的 R 包开发者们。",
     p5_note = "页面所有内容均为计算假设，结论需经实验验证后方可成立。"
@@ -684,6 +688,102 @@ tr <- function(key, lng) L[[lng]][[key]] %||% key
   openxlsx::saveWorkbook(wb, file, overwrite = TRUE)
 }
 
+# ---- top correlated immune cell / metabolic pathway per row ----------------
+# highest |correlation| within the selected immune method / the 7 pathways
+.top_traits <- function(d, method) {
+  n <- nrow(d)
+  out <- data.frame(Top_immune_cell = rep(NA_character_, n),
+                    Top_immune_cor  = rep(NA_real_, n),
+                    Top_metabolic_trait = rep(NA_character_, n),
+                    Top_metabolic_cor   = rep(NA_real_, n),
+                    stringsAsFactors = FALSE)
+  pick <- function(m, prefix) {
+    if (is.null(m) || ncol(m) == 0)
+      return(list(name = rep(NA_character_, n), cor = rep(NA_real_, n)))
+    a <- abs(m); a[is.na(a)] <- -Inf
+    idx <- max.col(a, ties.method = "first")
+    valid <- rowSums(is.finite(a)) > 0
+    nm <- sub(prefix, "", colnames(m)[idx])
+    cr <- m[cbind(seq_len(n), idx)]
+    nm[!valid] <- NA_character_; cr[!valid] <- NA_real_
+    list(name = nm, cor = cr)
+  }
+  ipre <- paste0("Imm_", method, "_")
+  icols <- grep(paste0("^", ipre), colnames(d), value = TRUE)
+  if (length(icols)) {
+    z <- pick(as.matrix(d[, icols, drop = FALSE]), ipre)
+    out$Top_immune_cell <- z$name; out$Top_immune_cor <- z$cor
+  }
+  mcols <- grep("^Meta_", colnames(d), value = TRUE)
+  if (length(mcols)) {
+    z <- pick(as.matrix(d[, mcols, drop = FALSE]), "^Meta_")
+    out$Top_metabolic_trait <- z$name; out$Top_metabolic_cor <- z$cor
+  }
+  out
+}
+
+# ---- detailed export table: every sub-score of every dimension -------------
+# one row per gene x cancer with the basic sub-items (+ HR / AUC), every immune
+# cell correlation of the selected method, the 7 metabolic pathways, the top
+# correlated cell / pathway and the ranks (a gene-set table also carries the
+# high-score-cancer lists). Ordered for readability, numeric columns rounded.
+.detail_table <- function(long, method, dims) {
+  if (is.null(long) || nrow(long) == 0) return(long)
+  tt <- .top_traits(long, method)
+  out <- data.frame(Gene = long$Gene, Cancer = long$Cancer, stringsAsFactors = FALSE)
+  if ("Ubi_Type_Full" %in% colnames(long)) out$Ubi_Type_Full <- long$Ubi_Type_Full
+  add <- function(col, name = col)
+    if (col %in% colnames(long)) out[[name]] <<- long[[col]]
+  if ("ubiquitin" %in% dims) add("Ubi_Score")
+  if ("basic" %in% dims)
+    for (cl in c("Basic_Score", "Expression_Score", "Diff_Score", "Survive_Score",
+                 "ROC_Score", "HR", "HR_p", "AUC_surv", "AUC_diag")) add(cl)
+  if ("immune" %in% dims) {
+    add("Immune_Score")
+    out$Top_immune_cell <- tt$Top_immune_cell
+    out$Top_immune_cor  <- tt$Top_immune_cor
+    ipre <- paste0("Imm_", method, "_")
+    for (cl in grep(paste0("^", ipre), colnames(long), value = TRUE))
+      out[[paste0("ImmCor_", sub(ipre, "", cl))]] <- long[[cl]]
+  }
+  if ("metabolic" %in% dims) {
+    add("Metabolic_Score")
+    out$Top_metabolic_trait <- tt$Top_metabolic_trait
+    out$Top_metabolic_cor   <- tt$Top_metabolic_cor
+    for (cl in grep("^Meta_", colnames(long), value = TRUE))
+      out[[paste0("MetaCor_", sub("^Meta_", "", cl))]] <- long[[cl]]
+  }
+  if ("feature" %in% dims) add("Feature_Score")
+  for (cl in c("Combined_Score", "Ubi_Rank", "Basic_Rank", "Immune_Rank",
+               "Metabolic_Rank", "Combined_Rank", "Missing")) add(cl)
+  for (nm in c("Ubi_high_cancers", "Basic_high_cancers",
+               "Immune_high_cancers", "Metabolic_high_cancers"))
+    if (nm %in% colnames(long)) out[[nm]] <- long[[nm]]
+  for (cl in colnames(out)) if (is.numeric(out[[cl]])) out[[cl]] <- round(out[[cl]], 3)
+  out
+}
+
+# ---- single-gene score summary (display + "download summary" share it) -----
+.scores_summary_gene <- function(d, method, include_ubi = TRUE, feature = FALSE) {
+  tt <- .top_traits(d, method)
+  out <- data.frame(Cancer = d$Cancer, stringsAsFactors = FALSE)
+  if (include_ubi) {
+    if ("Ubi_Type_Full" %in% colnames(d)) out$Ubi_Type_Full <- d$Ubi_Type_Full
+    if ("Ubi_Score" %in% colnames(d)) out$Ubi_Score <- d$Ubi_Score
+  }
+  out$Basic_Score <- d$Basic_Score
+  if ("Missing" %in% colnames(d)) out$Missing <- d$Missing
+  out$Immune_Score <- d$Immune_Score
+  out$Top_immune_cell <- tt$Top_immune_cell
+  out$Metabolic_Score <- d$Metabolic_Score
+  out$Top_metabolic_trait <- tt$Top_metabolic_trait
+  if (feature && "Feature_Score" %in% colnames(d)) out$Feature_Score <- d$Feature_Score
+  out$Combined_Score <- d$Combined_Score
+  if ("Combined_Rank" %in% colnames(d)) out$Combined_Rank <- d$Combined_Rank
+  for (cl in colnames(out)) if (is.numeric(out[[cl]])) out[[cl]] <- round(out[[cl]], 3)
+  out
+}
+
 # ----------------------------------------------------------------------------
 # UI builders (rebuilt on language switch; values restored from rv$sel)
 # ----------------------------------------------------------------------------
@@ -756,6 +856,7 @@ p1_ui <- function(lng, sel) {
            DTOutput("p1_table"),
            br(),
            downloadButton("p1_download", tr("download", lng)),
+           downloadButton("p1_detail_csv", tr("download_detail_csv", lng)),
            downloadButton("p1_detail_dl", tr("download_detail", lng)),
            p(paste0(tr("p1_missing_cancers", lng), ": ",
                     paste(cancers_incomplete, collapse = ", "), ". ", tr("p1_foot", lng)),
@@ -824,6 +925,7 @@ p2_ui <- function(lng, sel) {
            DTOutput("p2_scores"),
            br(),
            downloadButton("p2_download", tr("download", lng)),
+           downloadButton("p2_detail_csv", tr("download_detail_csv", lng)),
            downloadButton("p2_detail_dl", tr("download_detail", lng)),
            p(tr("p2_imm_note", lng), class = "text-muted small")),
       card(card_header(tr("p2_show_radar", lng), .plot_dl("p2_radar")),
@@ -926,6 +1028,7 @@ p3_ui <- function(lng, sel) {
            p(tr("p3_na_note", lng), class = "text-muted small"),
            br(),
            downloadButton("p3_download", tr("download", lng)),
+           downloadButton("p3_detail_csv", tr("download_detail_csv", lng)),
            downloadButton("p3_detail_dl", tr("download_detail", lng)),
            htmlOutput("p3_topnote")),
       card(card_header(tr("p1_4d", lng), .plot_dl("p3_4d")),
@@ -998,6 +1101,7 @@ p4_ui <- function(lng, sel) {
            DTOutput("p4_scores"),
            br(),
            downloadButton("p4_download", tr("download", lng)),
+           downloadButton("p4_detail_csv", tr("download_detail_csv", lng)),
            downloadButton("p4_detail_dl", tr("download_detail", lng)),
            p(tr("p2_imm_note", lng), class = "text-muted small")),
       card(card_header(tr("p2_show_radar", lng), .plot_dl("p4_radar")),
@@ -1526,11 +1630,17 @@ server <- function(input, output, session) {
       r <- p1_res(); if (is.null(r)) return(NULL)
       write.csv(.fmt_tbl(r$summ), con, row.names = FALSE)
     })
+  output$p1_detail_csv <- downloadHandler(
+    filename = function() paste0("ubi_gene_detail_", Sys.Date(), ".csv"),
+    content = function(con) {
+      r <- p1_res(); if (is.null(r)) return(NULL)
+      write.csv(.detail_table(r$detail, r$method, r$dims), con, row.names = FALSE)
+    })
   output$p1_detail_dl <- downloadHandler(
     filename = function() paste0("ubi_gene_detail_", Sys.Date(), ".xlsx"),
     content = function(con) {
       r <- p1_res(); if (is.null(r)) return(NULL)
-      .write_detail_xlsx(con, .clean_detail(r$detail, r$summ), .fmt_tbl(r$summ))
+      .write_detail_xlsx(con, .detail_table(r$detail, r$method, r$dims), .fmt_tbl(r$summ))
     })
 
   # ==========================================================================
@@ -1629,19 +1739,21 @@ server <- function(input, output, session) {
 
   output$p2_scores <- renderDT({
     r <- p2_res(); if (is.null(r)) return(NULL)
-    lng <- lang(); d <- r$d
-    tab <- data.frame(Cancer = d$Cancer, Type = d$Ubi_Type_Full,
-                      Ubi = .fmt3(d$Ubi_Score),
-                      Basic = ifelse(!is.na(d$Missing) & nzchar(d$Missing),
-                                     paste0(.fmt3(d$Basic_Score), "*"), .fmt3(d$Basic_Score)),
-                      Immune = .fmt3(d$Immune_Score),
-                      Metabolic = .fmt3(d$Metabolic_Score),
-                      Combined = .fmt3(d$Combined_Score),
-                      Rank = d$Combined_Rank,
+    lng <- lang(); s <- .scores_summary_gene(r$d, r$method, include_ubi = TRUE)
+    tab <- data.frame(Cancer = s$Cancer, Type = s$Ubi_Type_Full,
+                      Ubi = .fmt3(s$Ubi_Score),
+                      Basic = ifelse(!is.na(s$Missing) & nzchar(s$Missing),
+                                     paste0(.fmt3(s$Basic_Score), "*"), .fmt3(s$Basic_Score)),
+                      Immune = .fmt3(s$Immune_Score),
+                      TopImm = s$Top_immune_cell,
+                      Metabolic = .fmt3(s$Metabolic_Score),
+                      TopMeta = s$Top_metabolic_trait,
+                      Combined = .fmt3(s$Combined_Score),
+                      Rank = s$Combined_Rank,
                       stringsAsFactors = FALSE)
     colnames(tab) <- c("Cancer", tr("c_type_full", lng), tr("c_ubi", lng), tr("c_basic", lng),
-                       tr("c_immune", lng), tr("c_meta", lng), tr("c_comb", lng),
-                       tr("c_rank", lng))
+                       tr("c_immune", lng), tr("c_top_imm", lng), tr("c_meta", lng),
+                       tr("c_top_meta", lng), tr("c_comb", lng), tr("c_rank", lng))
     datatable(tab, rownames = FALSE, extensions = "Buttons",
               options = list(pageLength = 15, scrollX = TRUE, dom = "Bfrtip",
                              buttons = c("copy", "csv", "excel")))
@@ -1736,14 +1848,20 @@ server <- function(input, output, session) {
     filename = function() paste0("ubi_single_gene_scores_", Sys.Date(), ".csv"),
     content = function(con) {
       r <- p2_res(); if (is.null(r)) return(NULL)
-      write.csv(.clean_detail(r$d, r$d), con, row.names = FALSE)
+      write.csv(.scores_summary_gene(r$d, r$method, include_ubi = TRUE), con, row.names = FALSE)
+    })
+  output$p2_detail_csv <- downloadHandler(
+    filename = function() paste0("ubi_single_gene_detail_", Sys.Date(), ".csv"),
+    content = function(con) {
+      r <- p2_res(); if (is.null(r)) return(NULL)
+      write.csv(.detail_table(r$d, r$method, r$dims), con, row.names = FALSE)
     })
   output$p2_detail_dl <- downloadHandler(
     filename = function() paste0("ubi_single_gene_detail_", Sys.Date(), ".xlsx"),
     content = function(con) {
       r <- p2_res(); if (is.null(r)) return(NULL)
-      dd <- .clean_detail(r$d, r$d)
-      .write_detail_xlsx(con, dd, dd)
+      .write_detail_xlsx(con, .detail_table(r$d, r$method, r$dims),
+                         .scores_summary_gene(r$d, r$method, include_ubi = TRUE))
     })
 
   # ==========================================================================
@@ -1932,11 +2050,17 @@ server <- function(input, output, session) {
       r <- p3_res(); if (is.null(r)) return(NULL)
       write.csv(.fmt_tbl(r$summ), con, row.names = FALSE)
     })
+  output$p3_detail_csv <- downloadHandler(
+    filename = function() paste0("custom_gene_detail_", Sys.Date(), ".csv"),
+    content = function(con) {
+      r <- p3_res(); if (is.null(r)) return(NULL)
+      write.csv(.detail_table(r$detail, r$method, r$dims), con, row.names = FALSE)
+    })
   output$p3_detail_dl <- downloadHandler(
     filename = function() paste0("custom_gene_detail_", Sys.Date(), ".xlsx"),
     content = function(con) {
       r <- p3_res(); if (is.null(r)) return(NULL)
-      .write_detail_xlsx(con, .clean_detail(r$detail, r$summ), .fmt_tbl(r$summ))
+      .write_detail_xlsx(con, .detail_table(r$detail, r$method, r$dims), .fmt_tbl(r$summ))
     })
 
   # ==========================================================================
@@ -2004,17 +2128,22 @@ server <- function(input, output, session) {
 
   output$p4_scores <- renderDT({
     r <- p4_res(); if (is.null(r)) return(NULL)
-    lng <- lang(); d <- r$d
-    tab <- data.frame(Cancer = d$Cancer,
-                      Basic = ifelse(!is.na(d$Missing) & nzchar(d$Missing),
-                                     paste0(.fmt3(d$Basic_Score), "*"), .fmt3(d$Basic_Score)),
-                      Immune = .fmt3(d$Immune_Score),
-                      Metabolic = .fmt3(d$Metabolic_Score),
+    lng <- lang()
+    s <- .scores_summary_gene(r$d, r$method, include_ubi = FALSE,
+                              feature = "feature" %in% r$dims)
+    tab <- data.frame(Cancer = s$Cancer,
+                      Basic = ifelse(!is.na(s$Missing) & nzchar(s$Missing),
+                                     paste0(.fmt3(s$Basic_Score), "*"), .fmt3(s$Basic_Score)),
+                      Immune = .fmt3(s$Immune_Score),
+                      TopImm = s$Top_immune_cell,
+                      Metabolic = .fmt3(s$Metabolic_Score),
+                      TopMeta = s$Top_metabolic_trait,
                       stringsAsFactors = FALSE)
-    if ("feature" %in% r$dims) tab$Feature <- .fmt3(d$Feature_Score)
-    tab$Combined <- .fmt3(d$Combined_Score)
-    cn <- c("Cancer", tr("c_basic", lng), tr("c_immune", lng), tr("c_meta", lng),
-            ifelse("feature" %in% r$dims, tr("c_feature", lng), ""),
+    if ("Feature_Score" %in% colnames(s)) tab$Feature <- .fmt3(s$Feature_Score)
+    tab$Combined <- .fmt3(s$Combined_Score)
+    cn <- c("Cancer", tr("c_basic", lng), tr("c_immune", lng), tr("c_top_imm", lng),
+            tr("c_meta", lng), tr("c_top_meta", lng),
+            ifelse("Feature_Score" %in% colnames(s), tr("c_feature", lng), ""),
             tr("c_comb", lng))
     colnames(tab) <- cn[nzchar(cn)]
     datatable(tab, rownames = FALSE, extensions = "Buttons",
@@ -2110,14 +2239,23 @@ server <- function(input, output, session) {
     filename = function() paste0("custom_single_gene_scores_", Sys.Date(), ".csv"),
     content = function(con) {
       r <- p4_res(); if (is.null(r)) return(NULL)
-      write.csv(.clean_detail(r$d, r$d), con, row.names = FALSE)
+      write.csv(.scores_summary_gene(r$d, r$method, include_ubi = FALSE,
+                                     feature = "feature" %in% r$dims),
+                con, row.names = FALSE)
+    })
+  output$p4_detail_csv <- downloadHandler(
+    filename = function() paste0("custom_single_gene_detail_", Sys.Date(), ".csv"),
+    content = function(con) {
+      r <- p4_res(); if (is.null(r)) return(NULL)
+      write.csv(.detail_table(r$d, r$method, r$dims), con, row.names = FALSE)
     })
   output$p4_detail_dl <- downloadHandler(
     filename = function() paste0("custom_single_gene_detail_", Sys.Date(), ".xlsx"),
     content = function(con) {
       r <- p4_res(); if (is.null(r)) return(NULL)
-      dd <- .clean_detail(r$d, r$d)
-      .write_detail_xlsx(con, dd, dd)
+      .write_detail_xlsx(con, .detail_table(r$d, r$method, r$dims),
+                         .scores_summary_gene(r$d, r$method, include_ubi = FALSE,
+                                              feature = "feature" %in% r$dims))
     })
 }
 

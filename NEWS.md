@@ -1,3 +1,17 @@
+## 0.5.6 (2026-10-05)
+- Web app: every result table now offers a "Download details (CSV)" button in
+  addition to the Excel export. The detail file lists, for each gene x cancer,
+  the basic sub-items (expression / differential / survival / ROC, plus HR and
+  AUC), the correlation with every immune cell of the selected method, the 7
+  GSVA metabolic pathways, the top correlated immune cell / metabolic pathway,
+  the per-dimension ranks and (for gene sets) the high-score-cancer lists. The
+  plain "Download summary (CSV)" keeps the concise table shown on screen.
+- Web app single-gene tables (ubiquitin single gene, page 2; custom single gene,
+  page 4) gained two columns: the most correlated immune cell type and the most
+  correlated metabolic pathway, derived from the selected immune method.
+- Pages 3 and 4 (custom gene set / custom single gene) follow the same detail
+  download and extra-column changes.
+
 ## 0.5.5 (2026-09-24)
 - Fix "The output directory '/tmp/RtmpXXXX/bslib-XXXX' does not exist" on
   long-running web servers: bslib compiles the theme CSS into a sub-directory
