@@ -1,3 +1,12 @@
+## 0.5.7 (2026-10-05)
+- Plots: the shared theme now draws the x / y axis lines and tick marks (the
+  light grid background is kept), so every figure clearly shows its axes like a
+  classic journal figure. Tile heatmaps (gene x cancer score / correlation) and
+  the polar radar chart are excluded, since they have no cartesian axes.
+- The change applies to the R package figures and to the Shiny web app; the
+  pre-rendered box / ROC / KM PNG cache (inst/extdata/plotcache) and the README
+  example gallery were rebuilt with the new theme.
+
 ## 0.5.6 (2026-10-05)
 - Web app: every result table now offers a "Download details (CSV)" button in
   addition to the Excel export. The detail file lists, for each gene x cancer,

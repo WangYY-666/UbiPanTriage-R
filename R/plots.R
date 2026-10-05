@@ -3,12 +3,25 @@
 # ============================================================================
 
 #' Minimal plot theme used by the package
+#'
+#' SCI / GraphPad-style theme: keeps the light background of
+#' \code{theme_minimal()} but draws the x / y axis lines and tick marks so the
+#' axes are always visible (like a classic journal figure). Set
+#' \code{axes = FALSE} for tile heatmaps, where axis lines are not meaningful.
+#' @param base_size base font size (基础字号)
+#' @param axes draw the x / y axis lines and ticks (是否绘制坐标轴线与刻度)
 #' @noRd
-.theme_ubi <- function(base_size = 12) {
-  ggplot2::theme_minimal(base_size = base_size) +
+.theme_ubi <- function(base_size = 12, axes = TRUE) {
+  th <- ggplot2::theme_minimal(base_size = base_size) +
     ggplot2::theme(plot.title = ggplot2::element_text(face = "bold", hjust = 0.5),
                    axis.text = ggplot2::element_text(color = "grey20"),
                    legend.position = "right")
+  if (isTRUE(axes))
+    th <- th + ggplot2::theme(
+      axis.line  = ggplot2::element_line(color = "grey20", linewidth = 0.45,
+                                         lineend = "square"),
+      axis.ticks = ggplot2::element_line(color = "grey20", linewidth = 0.45))
+  th
 }
 
 #' Placeholder plot for missing data
@@ -44,7 +57,7 @@ plot_radar <- function(values, gene = "", max_val = 1) {
     ggplot2::geom_point(size = 2.5, color = "#2C5FA8") +
     ggplot2::coord_polar() +
     ggplot2::ylim(0, max_val) +
-    .theme_ubi() +
+    .theme_ubi(axes = FALSE) +
     ggplot2::labs(title = if (nzchar(gene)) paste0(gene, " - dimension scores") else "Dimension scores",
                   x = NULL, y = NULL) +
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
@@ -220,7 +233,7 @@ plot_score_heatmap <- function(scores_long, value = "Combined_Score") {
     ggplot2::geom_tile(color = "white", linewidth = 0.6) +
     ggplot2::scale_fill_gradient2(low = "#2E86C1", mid = "white", high = "#C0392B",
                                   midpoint = 0.5, limits = c(0, 1)) +
-    .theme_ubi() +
+    .theme_ubi(axes = FALSE) +
     ggplot2::labs(title = paste0("Gene x cancer ", value, " heatmap"),
                   x = NULL, y = NULL) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
@@ -245,7 +258,7 @@ plot_cor_heatmap <- function(d, title = "Correlation heatmap",
     ggplot2::geom_tile(color = "white", linewidth = 0.5) +
     ggplot2::scale_fill_gradient2(low = low, mid = "white", high = high,
                                   midpoint = 0, limits = c(-1, 1)) +
-    .theme_ubi() +
+    .theme_ubi(axes = FALSE) +
     ggplot2::labs(title = title, x = NULL, y = NULL) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
   if (p_col %in% colnames(d) && any(!is.na(d[[p_col]]))) {

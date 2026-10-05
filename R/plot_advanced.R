@@ -154,7 +154,7 @@ plot_facet_heatmap <- function(d, score_col = "Score", dim_col = "Dim",
     ggplot2::scale_fill_gradient2(low = "#2E86C1", mid = "white", high = "#C0392B",
                                   midpoint = 0.5, limits = c(0, 1), name = "Score") +
     ggplot2::facet_wrap(stats::as.formula(paste0("~ ", dim_col)), nrow = 1) +
-    .theme_ubi(base_size = 11) +
+    .theme_ubi(base_size = 11, axes = FALSE) +
     ggplot2::labs(title = "Gene x cancer scores", x = NULL, y = NULL) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, size = 8),
                    strip.background = ggplot2::element_rect(fill = "#EEF3F8", color = NA),
